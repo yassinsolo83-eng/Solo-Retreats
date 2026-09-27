@@ -39,7 +39,7 @@ export default async function PartnerPage({ params }: Props) {
 
   return (
     <article className="mx-auto max-w-7xl px-5 pb-24 pt-6 lg:px-10 lg:pt-10">
-      <Link href="/partners" className="text-sm text-stone hover:text-ink">← Camps & transport</Link>
+      <Link href="/partners" className="text-sm text-stone hover:text-ink">← All partners</Link>
       <div className="mt-8 grid gap-10 lg:grid-cols-[1.1fr_.9fr] lg:gap-16">
         <SanityImage image={partner.coverImage} width={1000} height={800} priority className="aspect-[5/4] w-full rounded-[2rem]" />
         <div className="lg:pt-6">
