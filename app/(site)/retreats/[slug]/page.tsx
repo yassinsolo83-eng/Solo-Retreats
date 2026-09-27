@@ -143,8 +143,8 @@ export default async function RetreatPage({ params }: Props) {
           )}
         </div>
 
-        <aside className="lg:sticky lg:top-8 lg:self-start">
-          <div id="book" className="scroll-mt-6 rounded-[2rem] bg-dune p-6 sm:p-8">
+        <aside className="lg:sticky lg:top-28 lg:self-start">
+          <div id="book" className="scroll-mt-24 rounded-[2rem] bg-dune p-6 sm:p-8">
             {completed ? (
               <>
                 <h2 className="font-display text-3xl">This retreat has ended</h2>
