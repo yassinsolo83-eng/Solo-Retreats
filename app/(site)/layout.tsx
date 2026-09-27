@@ -3,18 +3,23 @@ import { Footer } from '@/components/site/footer'
 import { MobileBar } from '@/components/site/mobile-bar'
 import { Nav } from '@/components/site/nav'
 import { BRAND } from '@/lib/site'
-import type { SiteSettings } from '@/lib/types'
+import type { RetreatCard, SiteSettings } from '@/lib/types'
 import { imageUrl } from '@/sanity/lib/image'
 import { sanityFetch } from '@/sanity/lib/client'
-import { settingsQuery } from '@/sanity/lib/queries'
+import { settingsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await sanityFetch<SiteSettings | null>(settingsQuery, {}, null)
-  const image = imageUrl(settings?.shareImage ?? settings?.heroImage, 1200, 630)
+  const [settings, retreats] = await Promise.all([
+    sanityFetch<SiteSettings | null>(settingsQuery, {}, null),
+    sanityFetch<RetreatCard[]>(upcomingRetreatsQuery, {}, []),
+  ])
+  // Share image → home photo → next retreat's cover, so a shared link always has a preview.
+  const source = [settings?.shareImage, settings?.heroImage, retreats[0]?.coverImage].find((img) => img?.asset)
+  const image = imageUrl(source, 1200, 630)
   const description = settings?.seoDescription || 'Small-group retreats and carefully planned trips to quiet places across Egypt.'
   return {
     description,
-    openGraph: { siteName: BRAND, type: 'website', description, images: image ? [{ url: image, width: 1200, height: 630 }] : undefined },
+    openGraph: { siteName: BRAND, type: 'website', description, images: image ? [{ url: image, width: 1200, height: 630, alt: BRAND }] : undefined },
     twitter: { card: 'summary_large_image' },
   }
 }
