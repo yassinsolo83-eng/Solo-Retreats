@@ -19,7 +19,7 @@ export const bookingRequest = defineType({
     defineField({ name: 'name', title: 'Name', type: 'string', readOnly: true }),
     defineField({ name: 'phone', title: 'Phone', type: 'string', readOnly: true }),
     defineField({ name: 'travelers', title: 'Travelers', type: 'number', readOnly: true }),
-    defineField({ name: 'retreat', title: 'Retreat', type: 'reference', to: [{ type: 'retreat' }], readOnly: true }),
+    defineField({ name: 'retreat', title: 'Retreat', type: 'reference', to: [{ type: 'retreat' }], weak: true, readOnly: true }),
     defineField({ name: 'retreatTitle', title: 'Retreat name (at time of request)', type: 'string', readOnly: true }),
     defineField({ name: 'dates', title: 'Dates', type: 'string', readOnly: true }),
     defineField({ name: 'message', title: 'Message', type: 'text', rows: 3, readOnly: true }),
