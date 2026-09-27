@@ -19,7 +19,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const slug = decodeURIComponent((await params).slug)
   const partner = await sanityFetch<PartnerDetail | null>(partnerBySlugQuery, { slug }, null)
   if (!partner) return {}
   const image = imageUrl(partner.coverImage, 1200, 630)
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PartnerPage({ params }: Props) {
-  const { slug } = await params
+  const slug = decodeURIComponent((await params).slug)
   const partner = await sanityFetch<PartnerDetail | null>(partnerBySlugQuery, { slug }, null)
   if (!partner) notFound()
   const isCamp = partner._type === 'camp'
