@@ -29,7 +29,12 @@ export const retreat = defineType({
       group: 'main',
       description: 'The page address, e.g. /retreats/siwa-reset. Press Generate.',
       options: { source: 'title', maxLength: 60 },
-      validation: (r) => r.required(),
+      validation: (r) =>
+          r.required().custom((value: { current?: string } | undefined) =>
+            !value?.current || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.current)
+              ? true
+              : 'Use lowercase English letters, numbers and dashes only. Press Generate to fix it.',
+          ),
     }),
     defineField({ name: 'destination', title: 'Destination', type: 'string', group: 'main', placeholder: 'Siwa Oasis', validation: (r) => r.required() }),
     defineField({
