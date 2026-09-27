@@ -9,7 +9,7 @@ import { SharePanel } from '@/components/site/share-panel'
 import { formatDeparture, formatRangeShort, isBookable, nights, upcomingDepartures } from '@/lib/dates'
 import { siteUrl } from '@/lib/site'
 import type { PartnerSummary, RetreatDetail, SiteSettings } from '@/lib/types'
-import { imageUrl } from '@/sanity/lib/image'
+import { ogImageUrl } from '@/sanity/lib/image'
 import { sanityFetch } from '@/sanity/lib/client'
 import { retreatBySlugQuery, retreatSlugsQuery, settingsQuery } from '@/sanity/lib/queries'
 
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!retreat) return {}
   const next = upcomingDepartures(retreat.departures)[0]
   const description = [next ? formatRangeShort(next) : null, retreat.shortDescription].filter(Boolean).join(' · ')
-  const image = imageUrl(retreat.coverImage, 1200, 630)
+  const image = ogImageUrl(retreat.coverImage)
   return {
     title: `${retreat.title}, ${retreat.destination}`,
     description,
