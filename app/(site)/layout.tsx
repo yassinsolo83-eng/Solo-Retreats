@@ -4,7 +4,7 @@ import { MobileBar } from '@/components/site/mobile-bar'
 import { Nav } from '@/components/site/nav'
 import { BRAND } from '@/lib/site'
 import type { RetreatCard, SiteSettings } from '@/lib/types'
-import { imageUrl } from '@/sanity/lib/image'
+import { ogImageUrl } from '@/sanity/lib/image'
 import { sanityFetch } from '@/sanity/lib/client'
 import { settingsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
 
@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   ])
   // Share image → home photo → next retreat's cover, so a shared link always has a preview.
   const source = [settings?.shareImage, settings?.heroImage, retreats[0]?.coverImage].find((img) => img?.asset)
-  const image = imageUrl(source, 1200, 630)
+  const image = ogImageUrl(source)
   const description = settings?.seoDescription || 'Small-group retreats and carefully planned trips to quiet places across Egypt.'
   return {
     description,
