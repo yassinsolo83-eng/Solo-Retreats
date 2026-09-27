@@ -6,7 +6,7 @@ import { sanityFetch } from '@/sanity/lib/client'
 import { partnersQuery } from '@/sanity/lib/queries'
 
 export const revalidate = 60
-export const metadata: Metadata = { title: 'Camps & transport', description: 'The camps we stay at and the bus companies we travel with.' }
+export const metadata: Metadata = { title: 'Partners', description: 'The camps we stay at and the bus companies we travel with.' }
 
 export default async function PartnersPage() {
   const { camps, buses } = await sanityFetch<{ camps: PartnerSummary[]; buses: PartnerSummary[] }>(partnersQuery, {}, { camps: [], buses: [] })
