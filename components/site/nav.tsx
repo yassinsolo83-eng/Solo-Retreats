@@ -9,7 +9,15 @@ import { BRAND, navLinks } from '@/lib/site'
 export function Nav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const overHero = pathname === '/'
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => setOpen(false), [pathname])
   useEffect(() => {
@@ -17,11 +25,19 @@ export function Nav() {
     return () => { document.body.style.overflow = '' }
   }, [open])
 
+  // On the home page the bar sits over the photo and turns solid once you scroll.
+  const transparent = overHero && !scrolled
+
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
   return (
-    <header className={`${overHero ? 'absolute' : 'relative'} inset-x-0 top-0 z-50`}>
-      <nav aria-label="Main" className={`mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-10 ${overHero ? 'text-sand' : 'text-ink'}`}>
+    <>
+    <header
+      className={`${overHero ? 'fixed' : 'sticky'} inset-x-0 top-0 z-50 transition-colors duration-300 ${
+        transparent ? 'bg-transparent text-sand' : 'border-b border-ink/10 bg-sand/90 text-ink backdrop-blur-md'
+      }`}
+    >
+      <nav aria-label="Main" className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-10">
         <Link href="/" className="font-display text-2xl tracking-tight">{BRAND}</Link>
         <div className="hidden items-center gap-8 text-[15px] lg:flex">
           {navLinks.map((link) => (
@@ -45,8 +61,9 @@ export function Nav() {
           {open ? <X /> : <Menu />}
         </button>
       </nav>
+    </header>
       {open && (
-        <div className="fixed inset-0 top-0 z-50 flex flex-col bg-pine px-5 pb-10 text-sand lg:hidden">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-pine px-5 pb-10 text-sand lg:hidden">
           <div className="flex h-20 items-center justify-between">
             <Link href="/" className="font-display text-2xl">{BRAND}</Link>
             <button type="button" className="-mr-2 rounded-full p-2" aria-label="Close menu" onClick={() => setOpen(false)}><X /></button>
@@ -60,6 +77,6 @@ export function Nav() {
           </div>
         </div>
       )}
-    </header>
+    </>
   )
 }
