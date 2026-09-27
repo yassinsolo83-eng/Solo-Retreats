@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
@@ -157,8 +158,37 @@ html {
   scroll-behavior: smooth;
 }
 
-.font-serif {
-  font-family: Georgia, 'Times New Roman', serif;
+@theme {
+  --color-sand: #f6f3ed;
+  --color-dune: #e7e1d5;
+  --color-dune-deep: #dcd4c4;
+  --color-pine: #26473d;
+  --color-pine-dark: #1b352d;
+  --color-ink: #24332d;
+  --color-stone: #5f6b64;
+  --color-amber: #d69c55;
+  --color-clay: #8f5526;
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-body: 'Figtree', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.font-serif,
+.font-display {
+  font-family: var(--font-display);
+}
+
+.site {
+  font-family: var(--font-body);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-clay);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
 
 @layer base {

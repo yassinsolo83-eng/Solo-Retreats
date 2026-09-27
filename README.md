@@ -1,14 +1,28 @@
 # Solo Retreats
 
-## Updating the website
+Next.js site with Sanity Studio built in at `/studio`.
 
-The editable content lives in `components/retreats-landing.tsx`:
+## Editing content
 
-- Update `siteConfig.contact` for WhatsApp, email, Facebook and Instagram.
-- Update the `retreats` array for destinations, dates, prices, partners, inclusions and availability. Keep unconfirmed values clearly marked as placeholders.
-- Update `gallery`, `faqs` and partner cards in the same central data area.
-- Replace `/public/og-image.jpg` when the official social sharing image is available.
+Everything on the site is edited from `/studio`:
 
-The booking form currently validates in the browser and shows a demo success state. Connect the TODO in `BookingForm` to a server endpoint before accepting real reservations.
+- **Site settings**: WhatsApp number, email, social links, home page text and photo, About page, share image.
+- **Retreats**: dates, camp, bus company, status, photos, itinerary, what's included.
+- **Camps / Bus companies**: partner pages.
+- **Gallery, Traveler reviews, FAQ**.
+- **Booking requests**: a copy of every request sent from the site.
 
-Solo Retreats organizes and curates travel experiences in cooperation with independent accommodation and transportation partners.
+Published changes show on the site within about a minute.
+
+## Environment variables (Vercel)
+
+| Name | Value |
+| --- | --- |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID` | `h9gtpviw` |
+| `NEXT_PUBLIC_SANITY_DATASET` | `production` |
+| `SANITY_API_WRITE_TOKEN` | Editor token (saves booking requests) |
+| `NEXT_PUBLIC_SITE_URL` | Optional. Your custom domain once you have one |
+
+## Booking flow
+
+The booking form on each retreat page opens WhatsApp with the traveler's details filled in and saves a copy under **Booking requests** in the studio. If a retreat is marked **Fully booked**, the form becomes a waitlist.
