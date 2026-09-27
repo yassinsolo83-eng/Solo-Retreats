@@ -6,8 +6,9 @@ export const siteUrl = (
 ).replace(/\/$/, '')
 
 export const navLinks = [
+  { href: '/', label: 'Home' },
   { href: '/retreats', label: 'Retreats' },
-  { href: '/partners', label: 'Camps & transport' },
+  { href: '/partners', label: 'Partners' },
   { href: '/gallery', label: 'Gallery' },
   { href: '/about', label: 'About' },
   { href: '/faq', label: 'FAQ' },
