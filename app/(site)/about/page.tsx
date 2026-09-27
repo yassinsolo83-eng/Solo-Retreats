@@ -13,7 +13,7 @@ export default async function AboutPage() {
   const settings = await sanityFetch<SiteSettings | null>(settingsQuery, {}, null)
   return (
     <div className="mx-auto grid max-w-7xl gap-12 px-5 pb-24 pt-10 lg:grid-cols-[.85fr_1.15fr] lg:gap-20 lg:px-10 lg:pt-16">
-      <SanityImage image={settings?.organizerPhoto} width={900} height={1100} priority className="aspect-[9/11] w-full rounded-[2rem] lg:sticky lg:top-8 lg:self-start" />
+      <SanityImage image={settings?.organizerPhoto} width={900} height={1100} priority className="aspect-[9/11] w-full rounded-[2rem] lg:sticky lg:top-28 lg:self-start" />
       <div>
         <h1 className="font-display text-5xl leading-[1.02] tracking-[-0.02em] sm:text-7xl">
           {settings?.aboutTitle || (settings?.organizerName ? `Hi, I'm ${settings.organizerName}` : 'About Solo Retreats')}
