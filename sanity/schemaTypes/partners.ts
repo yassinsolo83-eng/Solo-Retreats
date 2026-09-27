@@ -9,7 +9,12 @@ const slugField = defineField({
   type: 'slug',
   description: 'The page address, e.g. /partners/lily-camp. Press Generate.',
   options: { source: 'name', maxLength: 60 },
-  validation: (r) => r.required(),
+  validation: (r) =>
+      r.required().custom((value: { current?: string } | undefined) =>
+        !value?.current || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.current)
+          ? true
+          : 'Use lowercase English letters, numbers and dashes only. Press Generate to fix it.',
+      ),
 })
 
 export const camp = defineType({
