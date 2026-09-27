@@ -66,7 +66,7 @@ export const siteSettings = defineType({
   ].map((field) => {
     // Attach image fields to their groups
     if (field.name === 'heroImage') return { ...field, group: 'home' }
-    if (field.name === 'organizerPhoto') return { ...field, group: 'about' }
+    if (field.name === 'organizerPhoto' || field.name === 'aboutText') return { ...field, group: 'about' }
     if (field.name === 'shareImage') return { ...field, group: 'seo' }
     return field
   }),
