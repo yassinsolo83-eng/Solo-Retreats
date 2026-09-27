@@ -154,8 +154,12 @@
   }
 }
 
-html {
-  scroll-behavior: smooth;
+/* Smooth scrolling only for in-page link clicks (e.g. "Book this retreat").
+   Applying it to html directly makes the browser animate the scroll restore on refresh. */
+@media (prefers-reduced-motion: no-preference) {
+  html:focus-within {
+    scroll-behavior: smooth;
+  }
 }
 
 @theme {
@@ -187,7 +191,6 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
 
