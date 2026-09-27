@@ -23,7 +23,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const slug = decodeURIComponent((await params).slug)
   const retreat = await sanityFetch<RetreatDetail | null>(retreatBySlugQuery, { slug }, null)
   if (!retreat) return {}
   const next = upcomingDepartures(retreat.departures)[0]
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function RetreatPage({ params }: Props) {
-  const { slug } = await params
+  const slug = decodeURIComponent((await params).slug)
   const [retreat, settings] = await Promise.all([
     sanityFetch<RetreatDetail | null>(retreatBySlugQuery, { slug }, null),
     sanityFetch<SiteSettings | null>(settingsQuery, {}, null),
