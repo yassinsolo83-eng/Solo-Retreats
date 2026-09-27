@@ -5,7 +5,7 @@ import { RetreatCard } from '@/components/site/retreat-card'
 import { RichText } from '@/components/site/rich-text'
 import { SanityImage } from '@/components/site/sanity-image'
 import type { PartnerDetail } from '@/lib/types'
-import { imageUrl } from '@/sanity/lib/image'
+import { ogImageUrl } from '@/sanity/lib/image'
 import { sanityFetch } from '@/sanity/lib/client'
 import { partnerBySlugQuery, partnerSlugsQuery } from '@/sanity/lib/queries'
 
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = decodeURIComponent((await params).slug)
   const partner = await sanityFetch<PartnerDetail | null>(partnerBySlugQuery, { slug }, null)
   if (!partner) return {}
-  const image = imageUrl(partner.coverImage, 1200, 630)
+  const image = ogImageUrl(partner.coverImage)
   return { title: partner.name, description: partner.summary ?? undefined, openGraph: { images: image ? [{ url: image, width: 1200, height: 630 }] : undefined } }
 }
 
