@@ -13,3 +13,6 @@ export const navLinks = [
   { href: '/about', label: 'About' },
   { href: '/faq', label: 'FAQ' },
 ]
+
+/** True for text that is a web address, e.g. a Maps link pasted into a name field. */
+export const isUrl = (value?: string | null) => Boolean(value && /^(https?:\/\/|www\.)/i.test(value.trim()))
