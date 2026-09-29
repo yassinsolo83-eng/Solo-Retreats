@@ -15,7 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
   ])
   // Share image → home photo → next retreat's cover, so a shared link always has a preview.
   const source = [settings?.shareImage, settings?.heroImage, retreats[0]?.coverImage].find((img) => img?.asset)
-  const image = ogImageUrl(source)
+  // Last resort: the logo card in /public, so a shared link never has an empty preview.
+  const image = ogImageUrl(source) ?? '/og-default.jpg'
   const description = settings?.seoDescription || 'Small-group retreats and carefully planned trips to quiet places across Egypt.'
   return {
     description,
