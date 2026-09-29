@@ -5,7 +5,10 @@ export const client = createClient({
   projectId: projectId || 'missing',
   dataset,
   apiVersion,
-  useCdn: true,
+  // Next.js already caches every request, so read straight from the API:
+  // the CDN can hand back the old version for a few seconds right after Publish,
+  // which would undo the instant update from the webhook.
+  useCdn: false,
 })
 
 /** How often (in seconds) published changes reach the site if the instant-publish webhook isn't set up. */
