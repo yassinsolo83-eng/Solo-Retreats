@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { MapPin } from 'lucide-react'
+import { isUrl } from '@/lib/site'
 import { notFound } from 'next/navigation'
 import { RetreatCard } from '@/components/site/retreat-card'
 import { RichText } from '@/components/site/rich-text'
@@ -31,19 +33,22 @@ export default async function PartnerPage({ params }: Props) {
   const partner = await sanityFetch<PartnerDetail | null>(partnerBySlugQuery, { slug }, null)
   if (!partner) notFound()
   const isCamp = partner._type === 'camp'
+  // A Maps link typed into Location still works as the map button, and never shows as text.
+  const location = partner.location && !isUrl(partner.location) ? partner.location : null
+  const maps = partner.googleMaps || (isUrl(partner.location) ? partner.location : null)
   const links = [
-    { label: 'Instagram', href: partner.instagram },
     { label: 'Facebook', href: partner.facebook },
-    { label: 'Open in Google Maps', href: partner.googleMaps },
+    { label: 'Instagram', href: partner.instagram },
   ].filter((l): l is { label: string; href: string } => Boolean(l.href))
+  const hasCover = Boolean(partner.coverImage?.asset)
 
   return (
     <article className="mx-auto max-w-7xl px-5 pb-24 pt-6 lg:px-10 lg:pt-10">
       <Link href="/partners" className="text-sm text-stone hover:text-ink">← All partners</Link>
-      <div className="mt-8 grid gap-10 lg:grid-cols-[1.1fr_.9fr] lg:gap-16">
-        <SanityImage image={partner.coverImage} width={1000} height={800} priority className="aspect-[5/4] w-full rounded-[2rem]" />
-        <div className="lg:pt-6">
-          <p className="text-clay">{isCamp ? 'Camp' : 'Transport'}{partner.location ? ` in ${partner.location}` : ''}{partner.vehicleType ? ` · ${partner.vehicleType}` : ''}</p>
+      <div className={`mt-8 grid gap-10 lg:gap-16 ${hasCover ? 'lg:grid-cols-[1.1fr_.9fr]' : 'max-w-3xl'}`}>
+        {hasCover && <SanityImage image={partner.coverImage} width={1000} height={800} priority className="aspect-[5/4] w-full rounded-[2rem]" />}
+        <div className={hasCover ? 'lg:pt-6' : ''}>
+          <p className="text-clay">{isCamp ? 'Camp' : 'Transport'}{location ? ` in ${location}` : ''}{partner.vehicleType ? ` · ${partner.vehicleType}` : ''}</p>
           <h1 className="mt-3 font-display text-5xl leading-none tracking-[-0.02em] sm:text-6xl">{partner.name}</h1>
           {partner.summary && <p className="mt-6 text-xl leading-relaxed text-stone">{partner.summary}</p>}
           {!!partner.amenities?.length && (
@@ -51,9 +56,16 @@ export default async function PartnerPage({ params }: Props) {
               {partner.amenities.map((a) => <li key={a} className="rounded-full bg-dune px-4 py-2 text-sm">{a}</li>)}
             </ul>
           )}
-          {links.length > 0 && (
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
-              {links.map((l) => <a key={l.label} href={l.href} target="_blank" rel="noreferrer" className="text-clay underline underline-offset-4">{l.label}</a>)}
+          {(links.length > 0 || maps) && (
+            <div className="mt-8 flex flex-wrap gap-2">
+              {maps && (
+                <a href={maps} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-pine px-5 text-sm font-semibold text-sand hover:bg-pine-dark">
+                  <MapPin aria-hidden="true" className="size-4" /> Open in Google Maps
+                </a>
+              )}
+              {links.map((l) => (
+                <a key={l.label} href={l.href} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center rounded-full border border-ink/15 px-5 text-sm hover:bg-dune">{l.label}</a>
+              ))}
             </div>
           )}
           <p className="mt-10 text-sm text-stone">{partner.name} is an independent partner and is not owned by Solo Retreats.</p>
