@@ -25,7 +25,15 @@ export const camp = defineType({
   fields: [
     defineField({ name: 'name', title: 'Name', type: 'string', validation: (r) => r.required() }),
     slugField,
-    defineField({ name: 'location', title: 'Location', type: 'string', placeholder: 'Nuweiba, South Sinai' }),
+    defineField({
+      name: 'location',
+      title: 'Location',
+      type: 'string',
+      placeholder: 'Nuweiba, South Sinai',
+      description: 'The place name only. Paste the Maps link in "Google Maps link" at the bottom.',
+      validation: (r) =>
+        r.custom((value?: string) => (value && /^(https?:\/\/|www\.)/i.test(value.trim()) ? 'This looks like a link. Write the place name here (e.g. Nuweiba, South Sinai) and put the link in "Google Maps link".' : true)),
+    }),
     defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
     simpleBlocks('description', 'Full description'),
     defineField({ name: 'amenities', title: 'What guests get', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
