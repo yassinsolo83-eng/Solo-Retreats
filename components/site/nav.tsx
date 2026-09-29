@@ -2,10 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { navLinks } from '@/lib/site'
 import { Wordmark } from './logo'
+
+const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
 export function Nav() {
   const pathname = usePathname()
@@ -13,11 +15,17 @@ export function Nav() {
   const [scrolled, setScrolled] = useState(false)
   const overHero = pathname === '/'
 
-  useEffect(() => {
+  // Layout effect: read the scroll position before the first paint, so a page opened
+  // or refreshed half-way down shows the solid bar straight away.
+  useIsomorphicLayoutEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('load', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('load', onScroll)
+    }
   }, [])
 
   useEffect(() => setOpen(false), [pathname])
@@ -40,7 +48,7 @@ export function Nav() {
   return (
     <>
     <header
-      className={`${overHero ? 'fixed' : 'sticky'} inset-x-0 top-0 z-50 transition-colors duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
         transparent ? 'bg-transparent text-sand' : 'border-b border-ink/10 bg-sand/90 text-ink backdrop-blur-md'
       }`}
     >
