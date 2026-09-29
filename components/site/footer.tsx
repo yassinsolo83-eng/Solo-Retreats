@@ -37,7 +37,13 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
           </div>
         )}
       </div>
-      <p className="mx-auto mt-14 max-w-7xl border-t border-sand/15 pt-6 text-xs">© {new Date().getFullYear()} {BRAND}</p>
+      <div className="mx-auto mt-14 flex max-w-7xl flex-col gap-3 border-t border-sand/15 pt-6 text-xs sm:flex-row sm:items-center sm:justify-between">
+        <p>© {new Date().getFullYear()} {BRAND}</p>
+        <div className="flex gap-5">
+          <Link href="/terms" className="hover:text-sand">Booking terms</Link>
+          <Link href="/privacy" className="hover:text-sand">Privacy</Link>
+        </div>
+      </div>
     </footer>
   )
 }

@@ -49,4 +49,13 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem('galleryImage').title('Gallery'),
       S.documentTypeListItem('testimonial').title('Traveler reviews'),
       S.documentTypeListItem('faq').title('FAQ'),
+      S.divider(),
+      S.listItem()
+        .title('Booking terms')
+        .id('bookingTerms')
+        .child(S.document().schemaType('bookingTerms').documentId('bookingTerms').title('Booking terms')),
+      S.listItem()
+        .title('Privacy policy')
+        .id('privacyPolicy')
+        .child(S.document().schemaType('privacyPolicy').documentId('privacyPolicy').title('Privacy policy')),
     ])

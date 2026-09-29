@@ -6,7 +6,7 @@ import { dataset, projectId } from './sanity/env'
 import { schemaTypes } from './sanity/schemaTypes'
 import { structure } from './sanity/structure'
 
-const singletonTypes = new Set(['siteSettings'])
+const singletonTypes = new Set(['siteSettings', 'bookingTerms', 'privacyPolicy'])
 const singletonActions = new Set(['publish', 'discardChanges', 'restore'])
 
 export default defineConfig({

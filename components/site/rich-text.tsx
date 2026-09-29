@@ -5,7 +5,10 @@ const components: PortableTextComponents = {
     normal: ({ children }) => <p className="mb-5 last:mb-0">{children}</p>,
     h3: ({ children }) => <h3 className="mb-3 mt-8 font-display text-2xl text-ink">{children}</h3>,
   },
-  list: { bullet: ({ children }) => <ul className="mb-5 list-disc space-y-2 pl-5">{children}</ul> },
+  list: {
+    bullet: ({ children }) => <ul className="mb-5 list-disc space-y-2 ps-5">{children}</ul>,
+    number: ({ children }) => <ol className="mb-5 list-decimal space-y-2 ps-5">{children}</ol>,
+  },
   marks: {
     link: ({ children, value }) => (
       <a href={value?.href} className="text-clay underline underline-offset-4" target="_blank" rel="noreferrer">{children}</a>

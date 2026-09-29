@@ -10,6 +10,7 @@ Everything on the site is edited from `/studio`:
 - **Retreats**: dates, camp, bus company, status, photos, itinerary, what's included.
 - **Camps / Bus companies**: partner pages.
 - **Gallery, Traveler reviews, FAQ**.
+- **Booking terms, Privacy policy**: English and Arabic. Shown at /terms and /privacy (add ?lang=ar for Arabic).
 - **Booking requests**: a copy of every request sent from the site.
 
 Published changes show on the site within about a minute.
@@ -21,6 +22,9 @@ Published changes show on the site within about a minute.
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | `h9gtpviw` |
 | `NEXT_PUBLIC_SANITY_DATASET` | `production` |
 | `SANITY_API_WRITE_TOKEN` | Editor token (saves booking requests) |
+| `RESEND_API_KEY` | From resend.com. Emails you each booking request |
+| `BOOKING_NOTIFY_EMAIL` | Where booking emails go (the email you signed up to Resend with) |
+| `BOOKING_FROM_EMAIL` | Optional. Only after verifying your own domain in Resend |
 | `NEXT_PUBLIC_SITE_URL` | Optional. Your custom domain once you have one |
 
 ## Booking flow

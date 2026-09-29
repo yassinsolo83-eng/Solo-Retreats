@@ -84,3 +84,5 @@ export type SiteSettings = {
 
 export type GalleryItem = { _id: string; caption?: string | null; category?: string | null; image: SanityImage; retreat?: string | null }
 export type Faq = { _id: string; question: string; answer: string }
+
+export type LegalDoc = { lastUpdated?: string | null; titleAr?: string | null; bodyEn?: PortableTextBlock[] | null; bodyAr?: PortableTextBlock[] | null }

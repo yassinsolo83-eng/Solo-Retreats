@@ -74,3 +74,5 @@ export const faqsQuery = defineQuery(`*[_type == "faq"] | order(coalesce(order, 
 export const testimonialsQuery = defineQuery(`*[_type == "testimonial"] | order(_createdAt desc)[0...6]{
   _id, name, quote, photo${image}, "retreat": retreat->title
 }`)
+
+export const legalQuery = defineQuery(`*[_type == $type][0]{ lastUpdated, titleAr, bodyEn, bodyAr }`)
