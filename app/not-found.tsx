@@ -12,7 +12,7 @@ export default async function RootNotFound() {
   return (
     <div className="site min-h-screen bg-sand text-ink">
       <Nav />
-      <main id="main"><NotFoundContent /></main>
+      <main id="main" className="pt-20"><NotFoundContent /></main>
       <Footer settings={settings} />
       <MobileBar whatsappNumber={settings?.whatsappNumber} />
     </div>

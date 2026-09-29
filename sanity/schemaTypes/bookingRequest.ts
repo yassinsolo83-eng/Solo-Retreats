@@ -23,6 +23,7 @@ export const bookingRequest = defineType({
     defineField({ name: 'retreatTitle', title: 'Retreat name (at time of request)', type: 'string', readOnly: true }),
     defineField({ name: 'dates', title: 'Dates', type: 'string', readOnly: true }),
     defineField({ name: 'message', title: 'Message', type: 'text', rows: 3, readOnly: true }),
+    defineField({ name: 'source', title: 'Came from', type: 'string', readOnly: true, description: 'Where they first found the site (Instagram, Google, a shared link...).' }),
     defineField({ name: 'notes', title: 'Your notes', type: 'text', rows: 3, description: 'Private. Only you see this.' }),
   ],
   orderings: [{ title: 'Newest first', name: 'createdDesc', by: [{ field: '_createdAt', direction: 'desc' }] }],

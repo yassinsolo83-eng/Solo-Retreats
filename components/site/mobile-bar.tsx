@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { track } from '@/lib/analytics'
 import { whatsappUrl } from '@/lib/whatsapp'
 import { WhatsAppIcon } from './icons'
 
@@ -18,7 +19,7 @@ export function MobileBar({ whatsappNumber }: { whatsappNumber?: string | null }
           Book this retreat
         </a>
       ) : (
-        <a href={wa!} target="_blank" rel="noreferrer" className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-pine text-sm font-semibold text-sand">
+        <a href={wa!} target="_blank" rel="noreferrer" onClick={() => track('whatsapp_click', { location: 'mobile_bar' })} className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-pine text-sm font-semibold text-sand">
           <WhatsAppIcon /> Message us on WhatsApp
         </a>
       )}

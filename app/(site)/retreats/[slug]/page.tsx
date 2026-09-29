@@ -3,15 +3,16 @@ import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { BookingForm } from '@/components/site/booking-form'
+import { JsonLd } from '@/components/site/json-ld'
 import { StatusPill } from '@/components/site/retreat-card'
 import { RichText } from '@/components/site/rich-text'
 import { SanityImage } from '@/components/site/sanity-image'
 import { SharePanel } from '@/components/site/share-panel'
 import { averageRating, reviewerName, Stars } from '@/components/site/stars'
 import { formatDeparture, formatRangeShort, isBookable, nights, upcomingDepartures } from '@/lib/dates'
-import { siteUrl } from '@/lib/site'
+import { BRAND, siteUrl } from '@/lib/site'
 import type { PartnerSummary, RetreatDetail, SiteSettings } from '@/lib/types'
-import { ogImageUrl } from '@/sanity/lib/image'
+import { imageUrl, ogImageUrl } from '@/sanity/lib/image'
 import { sanityFetch } from '@/sanity/lib/client'
 import { retreatBySlugQuery, retreatSlugsQuery, settingsQuery } from '@/sanity/lib/queries'
 
@@ -54,6 +55,28 @@ export default async function RetreatPage({ params }: Props) {
   const completed = retreat.status === 'completed'
   const kind = isBookable(retreat) && departures.length ? 'booking' : 'waitlist'
   const rating = averageRating(retreat.testimonials ?? [])
+  // One schema.org Event per upcoming date, so Google understands dates and place.
+  const cover = imageUrl(retreat.coverImage, 1200)
+  const events = completed
+    ? []
+    : departures.map((d) => ({
+        '@context': 'https://schema.org',
+        '@type': 'Event',
+        name: retreat.title,
+        description: retreat.shortDescription ?? undefined,
+        startDate: d.departureDate,
+        endDate: d.returnDate,
+        eventStatus: 'https://schema.org/EventScheduled',
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        location: {
+          '@type': 'Place',
+          name: retreat.camp?.name ?? retreat.destination,
+          address: { '@type': 'PostalAddress', addressLocality: retreat.destination, addressCountry: 'EG' },
+        },
+        image: cover ? [cover] : undefined,
+        url: pageUrl,
+        organizer: { '@type': 'Organization', name: BRAND, url: siteUrl },
+      }))
 
   const facts: [string, React.ReactNode][] = [
     ['Where', retreat.destination],
@@ -78,6 +101,7 @@ export default async function RetreatPage({ params }: Props) {
 
   return (
     <article>
+      {events.length > 0 && <JsonLd data={events} />}
       <header className="mx-auto max-w-7xl px-5 pt-6 lg:px-10 lg:pt-10">
         <Link href="/retreats" className="text-sm text-stone hover:text-ink">← All retreats</Link>
         <div className="mt-6 flex flex-wrap items-center gap-3">

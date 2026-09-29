@@ -24,7 +24,7 @@ export function nights(d: Departure) {
 }
 
 export function upcomingDepartures(departures: Departure[] | null | undefined) {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo' }).format(new Date())
   return (departures ?? []).filter((d) => d.departureDate && d.returnDate && d.departureDate >= today)
 }
 

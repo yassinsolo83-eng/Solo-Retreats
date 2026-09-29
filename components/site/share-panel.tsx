@@ -3,6 +3,7 @@
 import QRCode from 'qrcode'
 import { useEffect, useState } from 'react'
 import { Check, Download, Link2, Share2 } from 'lucide-react'
+import { track } from '@/lib/analytics'
 
 const PINE = '#26473d'
 const SAND = '#f6f3ed'
@@ -20,13 +21,17 @@ export function SharePanel({ url, title, subtitle }: { url: string; title: strin
   async function copy() {
     try {
       await navigator.clipboard.writeText(url)
+      track('share', { method: 'copy_link', retreat: title })
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {}
   }
 
   async function share() {
-    try { await navigator.share({ title, text: subtitle, url }) } catch {}
+    try {
+      await navigator.share({ title, text: subtitle, url })
+      track('share', { method: 'native', retreat: title })
+    } catch {}
   }
 
   /** Builds a 1080×1920 story image: title, dates, QR code and link. */
@@ -73,6 +78,7 @@ export function SharePanel({ url, title, subtitle }: { url: string; title: strin
     link.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-qr.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
+    track('qr_download', { retreat: title })
   }
 
   const button = 'inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/15 px-4 text-sm transition hover:bg-dune'

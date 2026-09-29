@@ -13,9 +13,8 @@ type Props = { searchParams: Promise<{ retreat?: string }> }
 export default async function ReviewPage({ searchParams }: Props) {
   const { retreat: slug } = await searchParams
   const all = await sanityFetch<ReviewableRetreat[]>(reviewableRetreatsQuery, {}, [])
-  const today = new Date().toISOString().slice(0, 10)
-  // Only trips that have already happened can be reviewed.
-  const past = all.filter((r) => r.status === 'completed' || (r.date && r.date <= today))
+  // Only trips that have already happened can be reviewed (they're marked completed automatically).
+  const past = all.filter((r) => r.status === 'completed')
   const preselected = slug ? all.find((r) => r.slug === slug) ?? null : null
 
   return (

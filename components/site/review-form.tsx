@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { track } from '@/lib/analytics'
 import type { ReviewableRetreat } from '@/lib/types'
 
 const field = 'w-full rounded-2xl border border-ink/15 bg-sand px-4 py-3.5 text-base text-ink outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20'
@@ -32,6 +33,7 @@ export function ReviewForm({ retreats, preselected }: { retreats: ReviewableRetr
         body: JSON.stringify({ retreatId, rating, name: name.trim(), quote: quote.trim(), consent, company: new FormData(event.currentTarget).get('company') }),
       })
       if (!res.ok) throw new Error()
+      track('review_submit', { rating })
       setState('done')
     } catch {
       setState('idle')

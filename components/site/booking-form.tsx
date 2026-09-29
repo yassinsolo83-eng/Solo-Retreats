@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { formatDeparture } from '@/lib/dates'
+import { track } from '@/lib/analytics'
+import { getAttribution } from '@/lib/attribution'
 import type { Departure } from '@/lib/types'
 import { bookingMessage, whatsappUrl } from '@/lib/whatsapp'
 import { WhatsAppIcon } from './icons'
@@ -37,9 +39,10 @@ export function BookingForm({ retreatId, retreatTitle, departures, kind, whatsap
     const departure = departures.find((d) => d._key === departureKey)
     const dates = departure ? formatDeparture(departure) : undefined
     const payload = { kind, retreatId, retreatTitle, dates, name: name.trim(), phone: phone.trim(), travelers, message: message.trim(), company: honeypot }
+    track(kind === 'waitlist' ? 'waitlist_request' : 'booking_request', { retreat: retreatTitle, travelers })
 
     // Keep a copy in the studio. keepalive lets the request finish while WhatsApp opens.
-    fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), keepalive: true }).catch(() => {})
+    fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, source: getAttribution() }), keepalive: true }).catch(() => {})
 
     const url = whatsappUrl(whatsappNumber, bookingMessage({ ...payload, link: pageUrl }))
     if (url) window.location.href = url

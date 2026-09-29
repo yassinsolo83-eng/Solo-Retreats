@@ -32,6 +32,7 @@ export async function POST(request: Request) {
     dates: clean(body.dates, 100),
     message: clean(body.message, 1000),
   }
+  const source = clean(body.source, 120)
 
   // Save and email at the same time; one failing doesn't stop the other.
   const [saved, emailed] = await Promise.allSettled([
@@ -40,6 +41,7 @@ export async function POST(request: Request) {
           _type: 'bookingRequest',
           status: 'new',
           ...booking,
+          source,
           retreat: { _type: 'reference', _ref: retreatId, _weak: true },
         })
       : Promise.reject(new Error('SANITY_API_WRITE_TOKEN is not set')),

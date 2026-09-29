@@ -2,12 +2,15 @@ import { defineQuery } from 'next-sanity'
 
 const image = `{ asset, hotspot, crop, alt }`
 
+/** A retreat counts as completed when marked so, or once every return date is before today (Cairo time). */
+const ended = `(status == "completed" || count(departures[returnDate >= $today]) == 0)`
+
 const retreatCard = `
   _id,
   title,
   "slug": slug.current,
   destination,
-  status,
+  "status": select(${ended} => "completed", status),
   spotsLeft,
   shortDescription,
   showPrice,
@@ -25,10 +28,10 @@ export const settingsQuery = defineQuery(`*[_type == "siteSettings"][0]{
   seoDescription, shareImage${image}
 }`)
 
-export const upcomingRetreatsQuery = defineQuery(`*[_type == "retreat" && status != "completed" && defined(slug.current)]
+export const upcomingRetreatsQuery = defineQuery(`*[_type == "retreat" && !${ended} && defined(slug.current)]
   | order(coalesce(departures[0].departureDate, "9999") asc){ ${retreatCard} }`)
 
-export const pastRetreatsQuery = defineQuery(`*[_type == "retreat" && status == "completed" && defined(slug.current)]
+export const pastRetreatsQuery = defineQuery(`*[_type == "retreat" && ${ended} && defined(slug.current)]
   | order(departures[0].departureDate desc){ ${retreatCard} }`)
 
 export const retreatSlugsQuery = defineQuery(`*[_type == "retreat" && defined(slug.current)].slug.current`)
@@ -61,7 +64,7 @@ export const partnerBySlugQuery = defineQuery(`*[_type in ["camp", "busCompany"]
   ${partnerFields},
   description, amenities, instagram, facebook, googleMaps,
   images[]${image},
-  "retreats": *[_type == "retreat" && references(^._id) && status != "completed" && defined(slug.current)]{ ${retreatCard} }
+  "retreats": *[_type == "retreat" && references(^._id) && !${ended} && defined(slug.current)]{ ${retreatCard} }
 }`)
 
 export const galleryQuery = defineQuery(`*[_type == "galleryImage" && defined(image.asset)]
@@ -76,7 +79,7 @@ export const testimonialsQuery = defineQuery(`*[_type == "testimonial" && approv
 }`)
 
 export const reviewableRetreatsQuery = defineQuery(`*[_type == "retreat" && defined(slug.current)] | order(departures[0].departureDate desc){
-  _id, title, "slug": slug.current, status, "date": departures[0].departureDate
+  _id, title, "slug": slug.current, "status": select(${ended} => "completed", status), "date": departures[0].departureDate
 }`)
 
 export const legalQuery = defineQuery(`*[_type == $type][0]{ lastUpdated, titleAr, bodyEn, bodyAr }`)

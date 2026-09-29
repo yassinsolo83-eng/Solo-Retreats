@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { RetreatCard } from '@/components/site/retreat-card'
+import { JsonLd } from '@/components/site/json-ld'
 import { EmptyState } from '@/components/site/page-header'
+import { BRAND, siteUrl } from '@/lib/site'
 import { SanityImage } from '@/components/site/sanity-image'
 import { reviewerName, Stars } from '@/components/site/stars'
 import type { RetreatCard as RetreatCardType, SiteSettings, Testimonial } from '@/lib/types'
@@ -23,9 +25,23 @@ export default async function HomePage() {
     sanityFetch<Testimonial[]>(testimonialsQuery, {}, []),
   ])
   const heroImage = settings?.heroImage ?? retreats[0]?.coverImage
+  const organization = {
+    '@context': 'https://schema.org',
+    '@type': 'TravelAgency',
+    name: BRAND,
+    url: siteUrl,
+    logo: `${siteUrl}/icon-512.png`,
+    image: `${siteUrl}/og-default.jpg`,
+    description: settings?.seoDescription || 'Small-group retreats across Egypt.',
+    areaServed: { '@type': 'Country', name: 'Egypt' },
+    sameAs: [settings?.instagram, settings?.facebook, settings?.tiktok].filter(Boolean),
+    ...(settings?.email ? { email: settings.email } : {}),
+    ...(settings?.whatsappNumber ? { telephone: `+${settings.whatsappNumber}` } : {}),
+  }
 
   return (
     <>
+      <JsonLd data={organization} />
       <section className="relative -mt-20 flex min-h-[88svh] items-end overflow-hidden bg-pine text-sand">
         <SanityImage image={heroImage} width={2000} height={1300} priority sizes="100vw" className="absolute inset-0 size-full" alt="" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,32,.35)_0%,rgba(20,38,32,.15)_35%,rgba(20,38,32,.85)_100%)]" />

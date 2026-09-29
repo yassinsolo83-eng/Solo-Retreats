@@ -52,6 +52,7 @@ export const retreat = defineType({
       title: 'Status',
       type: 'string',
       group: 'main',
+      description: 'Retreats move to Past retreats by themselves the day after their last return date. Use Completed only to end one early.',
       options: { list: retreatStatuses, layout: 'radio' },
       initialValue: 'open',
       validation: (r) => r.required(),
