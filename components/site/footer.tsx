@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { BRAND, navLinks } from '@/lib/site'
+import { Wordmark } from './logo'
 import type { SiteSettings } from '@/lib/types'
 import { whatsappUrl } from '@/lib/whatsapp'
 
@@ -15,7 +16,7 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
     <footer className="bg-pine px-5 pb-28 pt-16 text-sand/80 lg:px-10 lg:pb-12">
       <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <Link href="/" className="font-display text-3xl text-sand">{BRAND}</Link>
+          <Link href="/" className="inline-block text-sand"><Wordmark className="h-8 w-auto" /></Link>
           <p className="mt-4 max-w-sm text-sm leading-relaxed">
             Small-group retreats across Egypt. We plan each trip and travel with you; camps and transport are run by independent local partners.
           </p>

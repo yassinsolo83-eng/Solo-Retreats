@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { BRAND, navLinks } from '@/lib/site'
+import { navLinks } from '@/lib/site'
+import { Wordmark } from './logo'
 
 export function Nav() {
   const pathname = usePathname()
@@ -44,7 +45,7 @@ export function Nav() {
       }`}
     >
       <nav aria-label="Main" className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-10">
-        <Link href="/" onClick={() => handleClick('/')} className="font-display text-2xl tracking-tight">{BRAND}</Link>
+        <Link href="/" onClick={() => handleClick('/')} className="-my-2 py-2"><Wordmark className="h-6 w-auto sm:h-7" /></Link>
         <div className="hidden items-center gap-8 text-[15px] lg:flex">
           {navLinks.map((link) => (
             <Link
@@ -72,7 +73,7 @@ export function Nav() {
       {open && (
         <div className="fixed inset-0 z-[60] flex flex-col bg-pine px-5 pb-10 text-sand lg:hidden">
           <div className="flex h-20 items-center justify-between">
-            <Link href="/" onClick={() => handleClick('/')} className="font-display text-2xl">{BRAND}</Link>
+            <Link href="/" onClick={() => handleClick('/')} className="-my-2 py-2"><Wordmark className="h-6 w-auto" /></Link>
             <button type="button" className="-mr-2 rounded-full p-2" aria-label="Close menu" onClick={() => setOpen(false)}><X /></button>
           </div>
           <div className="mt-6 flex flex-col">
