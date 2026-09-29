@@ -1,5 +1,6 @@
 import { EarthGlobeIcon } from '@sanity/icons/EarthGlobe'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { RetreatLinks } from '../components/retreat-links'
 import { imageGallery, imageWithAlt, simpleBlocks } from './fields'
 
 export const retreatStatuses = [
@@ -35,6 +36,15 @@ export const retreat = defineType({
               ? true
               : 'Use lowercase English letters, numbers and dashes only. Press Generate to fix it.',
           ),
+    }),
+    defineField({
+      name: 'links',
+      title: 'Links',
+      type: 'string',
+      group: 'main',
+      description: 'Copy these to share the retreat or ask travelers for a review.',
+      readOnly: true,
+      components: { input: RetreatLinks },
     }),
     defineField({ name: 'destination', title: 'Destination', type: 'string', group: 'main', placeholder: 'Siwa Oasis', validation: (r) => r.required() }),
     defineField({
