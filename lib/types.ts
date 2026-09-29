@@ -38,7 +38,9 @@ export type PartnerSummary = {
   coverImage?: SanityImage | null
 }
 
-export type Testimonial = { _id: string; name: string; quote: string; photo?: SanityImage | null; retreat?: string | null }
+export type Testimonial = { _id: string; name: string; quote: string; rating?: number | null; _createdAt?: string; photo?: SanityImage | null; retreat?: string | null }
+
+export type ReviewableRetreat = { _id: string; title: string; slug: string; status: RetreatStatus; date?: string | null }
 
 export type RetreatDetail = RetreatCard & {
   description?: PortableTextBlock[] | null
@@ -47,6 +49,7 @@ export type RetreatDetail = RetreatCard & {
   notIncluded?: string[] | null
   whatToBring?: string[] | null
   meetingPoint?: string | null
+  meetingPointMap?: string | null
   meetingTime?: string | null
   images?: SanityImage[] | null
   camp?: PartnerSummary | null

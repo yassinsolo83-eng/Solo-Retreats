@@ -47,7 +47,37 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem('busCompany').title('Bus companies'),
       S.divider(),
       S.documentTypeListItem('galleryImage').title('Gallery'),
-      S.documentTypeListItem('testimonial').title('Traveler reviews'),
+      S.listItem()
+        .title('Traveler reviews')
+        .schemaType('testimonial')
+        .child(
+          S.list()
+            .title('Traveler reviews')
+            .items([
+              S.listItem()
+                .title('Waiting for approval')
+                .schemaType('testimonial')
+                .child(
+                  S.documentList()
+                    .title('Waiting for approval')
+                    .apiVersion(apiVersion)
+                    .schemaType('testimonial')
+                    .filter('_type == "testimonial" && approved == false')
+                    .defaultOrdering([{ field: '_createdAt', direction: 'desc' }]),
+                ),
+              S.listItem()
+                .title('All reviews')
+                .schemaType('testimonial')
+                .child(
+                  S.documentList()
+                    .title('All reviews')
+                    .apiVersion(apiVersion)
+                    .schemaType('testimonial')
+                    .filter('_type == "testimonial"')
+                    .defaultOrdering([{ field: '_createdAt', direction: 'desc' }]),
+                ),
+            ]),
+        ),
       S.documentTypeListItem('faq').title('FAQ'),
       S.divider(),
       S.listItem()

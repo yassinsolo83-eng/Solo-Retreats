@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { MapPin } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { BookingForm } from '@/components/site/booking-form'
 import { StatusPill } from '@/components/site/retreat-card'
 import { RichText } from '@/components/site/rich-text'
 import { SanityImage } from '@/components/site/sanity-image'
 import { SharePanel } from '@/components/site/share-panel'
+import { averageRating, reviewerName, Stars } from '@/components/site/stars'
 import { formatDeparture, formatRangeShort, isBookable, nights, upcomingDepartures } from '@/lib/dates'
 import { siteUrl } from '@/lib/site'
 import type { PartnerSummary, RetreatDetail, SiteSettings } from '@/lib/types'
@@ -51,13 +53,26 @@ export default async function RetreatPage({ params }: Props) {
   const first = shown[0]
   const completed = retreat.status === 'completed'
   const kind = isBookable(retreat) && departures.length ? 'booking' : 'waitlist'
+  const rating = averageRating(retreat.testimonials ?? [])
 
   const facts: [string, React.ReactNode][] = [
     ['Where', retreat.destination],
     first ? ['Length', `${nights(first)} nights`] : null,
     retreat.camp ? ['Stay', <PartnerLink key="camp" partner={retreat.camp} />] : null,
     retreat.bus ? ['Transport', <PartnerLink key="bus" partner={retreat.bus} />] : null,
-    retreat.meetingPoint ? ['Meeting point', [retreat.meetingPoint, retreat.meetingTime].filter(Boolean).join(', ')] : null,
+    retreat.meetingPoint
+      ? [
+          'Meeting point',
+          <>
+            {[retreat.meetingPoint, retreat.meetingTime].filter(Boolean).join(', ')}
+            {retreat.meetingPointMap && (
+              <a href={retreat.meetingPointMap} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-1 text-base text-clay underline underline-offset-4">
+                <MapPin aria-hidden="true" className="size-4" /> Open in Google Maps
+              </a>
+            )}
+          </>,
+        ]
+      : null,
     ['Price', retreat.showPrice && retreat.price ? retreat.price : 'Ask on WhatsApp'],
   ].filter(Boolean) as [string, React.ReactNode][]
 
@@ -130,12 +145,20 @@ export default async function RetreatPage({ params }: Props) {
 
           {!!retreat.testimonials?.length && (
             <section className="mt-16">
-              <h2 className="font-display text-4xl tracking-tight">What travelers said</h2>
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <h2 className="font-display text-4xl tracking-tight">What travelers said</h2>
+                {rating && (
+                  <p className="flex items-center gap-2 text-stone">
+                    <Stars rating={rating.average} /> <span className="text-ink">{rating.average.toFixed(1)}</span> · {rating.count} review{rating.count > 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
               <div className="mt-8 flex flex-col gap-8">
                 {retreat.testimonials.map((t) => (
                   <figure key={t._id} className="border-l-2 border-amber pl-6">
-                    <blockquote className="font-display text-2xl leading-snug">“{t.quote}”</blockquote>
-                    <figcaption className="mt-3 text-sm text-stone">{t.name}</figcaption>
+                    {t.rating ? <Stars rating={t.rating} /> : null}
+                    <blockquote className="mt-2 font-display text-2xl leading-snug">“{t.quote}”</blockquote>
+                    <figcaption className="mt-3 text-sm text-stone">{reviewerName(t.name)}</figcaption>
                   </figure>
                 ))}
               </div>
@@ -150,6 +173,7 @@ export default async function RetreatPage({ params }: Props) {
                 <h2 className="font-display text-3xl">This retreat has ended</h2>
                 <p className="mt-3 text-stone">Take a look at what's coming up next.</p>
                 <Link href="/retreats" className="mt-6 flex min-h-12 items-center justify-center rounded-full bg-pine font-semibold text-sand">See upcoming retreats</Link>
+                <Link href={`/review?retreat=${retreat.slug}`} className="mt-3 flex min-h-12 items-center justify-center rounded-full border border-ink/15 hover:bg-sand">Were you on this trip? Leave a review</Link>
               </>
             ) : (
               <>

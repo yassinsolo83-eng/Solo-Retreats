@@ -71,3 +71,27 @@ export async function sendBookingEmail(b: Booking) {
   })
   if (!res.ok) throw new Error(`Resend responded ${res.status}: ${await res.text()}`)
 }
+
+/** Emails you when a traveler leaves a review, so you can approve it in the studio. */
+export async function sendReviewEmail(r: { name: string; rating: number; quote: string; retreatTitle: string; id: string }) {
+  const apiKey = process.env.RESEND_API_KEY
+  const to = process.env.BOOKING_NOTIFY_EMAIL
+  if (!apiKey || !to) return
+  const from = process.env.BOOKING_FROM_EMAIL || 'Solo Retreats <onboarding@resend.dev>'
+  const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)
+  const html = `
+  <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#24332d">
+    <p style="margin:0 0 4px;color:#8f5526;font-size:13px">New review · waiting for approval</p>
+    <h1 style="margin:0 0 6px;font-size:24px;font-weight:600">${escape(r.name)}${r.retreatTitle ? ` · ${escape(r.retreatTitle)}` : ''}</h1>
+    <p style="margin:0 0 16px;color:#d69c55;font-size:22px;letter-spacing:2px">${stars}</p>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.6;border-left:3px solid #d69c55;padding-left:14px">${escape(r.quote).replace(/\n/g, '<br>')}</p>
+    <a href="${siteUrl}/studio" style="display:inline-block;background:#26473d;color:#f6f3ed;text-decoration:none;padding:12px 20px;border-radius:999px;font-weight:600">Review it in the studio</a>
+    <p style="margin:16px 0 0;font-size:13px;color:#5f6b64">Open Traveler reviews → Waiting for approval, switch on "Show on website", then Publish.</p>
+  </div>`
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from, to: to.split(',').map((e) => e.trim()), subject: `New review ${stars}: ${r.name}`, html }),
+  })
+  if (!res.ok) throw new Error(`Resend responded ${res.status}: ${await res.text()}`)
+}

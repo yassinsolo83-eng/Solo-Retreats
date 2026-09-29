@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { RetreatCard } from '@/components/site/retreat-card'
 import { EmptyState } from '@/components/site/page-header'
 import { SanityImage } from '@/components/site/sanity-image'
+import { reviewerName, Stars } from '@/components/site/stars'
 import type { RetreatCard as RetreatCardType, SiteSettings, Testimonial } from '@/lib/types'
 import { sanityFetch } from '@/sanity/lib/client'
 import { settingsQuery, testimonialsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
@@ -105,8 +106,9 @@ export default async function HomePage() {
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
             {testimonials.map((t) => (
               <figure key={t._id}>
-                <blockquote className="font-display text-2xl leading-snug">“{t.quote}”</blockquote>
-                <figcaption className="mt-4 text-sm text-stone">{t.name}{t.retreat ? `, ${t.retreat}` : ''}</figcaption>
+                {t.rating ? <Stars rating={t.rating} /> : null}
+                <blockquote className="mt-3 font-display text-2xl leading-snug">“{t.quote}”</blockquote>
+                <figcaption className="mt-4 text-sm text-stone">{reviewerName(t.name)}{t.retreat ? `, ${t.retreat}` : ''}</figcaption>
               </figure>
             ))}
           </div>

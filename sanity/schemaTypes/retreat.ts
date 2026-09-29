@@ -106,6 +106,13 @@ export const retreat = defineType({
     defineField({ name: 'camp', title: 'Camp', type: 'reference', group: 'trip', to: [{ type: 'camp' }] }),
     defineField({ name: 'busCompany', title: 'Bus company', type: 'reference', group: 'trip', to: [{ type: 'busCompany' }] }),
     defineField({ name: 'meetingPoint', title: 'Meeting point', type: 'string', group: 'trip', placeholder: 'Nasr City, in front of City Stars Gate 5' }),
+    defineField({
+      name: 'meetingPointMap',
+      title: 'Meeting point on Google Maps',
+      type: 'url',
+      group: 'trip',
+      description: 'Paste the Google Maps share link (e.g. https://maps.app.goo.gl/...). Shows an "Open in Maps" link on the retreat page.',
+    }),
     defineField({ name: 'meetingTime', title: 'Meeting time', type: 'string', group: 'trip', placeholder: '11:00 PM' }),
 
     simpleBlocks('description', 'Full description'),

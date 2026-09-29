@@ -38,11 +38,11 @@ export const retreatBySlugQuery = defineQuery(`*[_type == "retreat" && slug.curr
   description,
   itinerary[]{ _key, title, text },
   included, notIncluded, whatToBring,
-  meetingPoint, meetingTime,
+  meetingPoint, meetingPointMap, meetingTime,
   images[]${image},
   "camp": camp->{ name, "slug": slug.current, location, summary, coverImage${image} },
   "bus": busCompany->{ name, "slug": slug.current, vehicleType, summary, coverImage${image} },
-  "testimonials": *[_type == "testimonial" && retreat._ref == ^._id]{ _id, name, quote, photo${image} }
+  "testimonials": *[_type == "testimonial" && retreat._ref == ^._id && approved != false] | order(_createdAt desc){ _id, name, quote, rating, _createdAt, photo${image} }
 }`)
 
 const partnerFields = `
@@ -71,8 +71,12 @@ export const galleryQuery = defineQuery(`*[_type == "galleryImage" && defined(im
 
 export const faqsQuery = defineQuery(`*[_type == "faq"] | order(coalesce(order, 9999) asc, _createdAt asc){ _id, question, answer }`)
 
-export const testimonialsQuery = defineQuery(`*[_type == "testimonial"] | order(_createdAt desc)[0...6]{
-  _id, name, quote, photo${image}, "retreat": retreat->title
+export const testimonialsQuery = defineQuery(`*[_type == "testimonial" && approved != false] | order(_createdAt desc)[0...6]{
+  _id, name, quote, rating, _createdAt, photo${image}, "retreat": retreat->title
+}`)
+
+export const reviewableRetreatsQuery = defineQuery(`*[_type == "retreat" && defined(slug.current)] | order(departures[0].departureDate desc){
+  _id, title, "slug": slug.current, status, "date": departures[0].departureDate
 }`)
 
 export const legalQuery = defineQuery(`*[_type == $type][0]{ lastUpdated, titleAr, bodyEn, bodyAr }`)

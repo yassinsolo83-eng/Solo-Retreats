@@ -47,10 +47,33 @@ export const testimonial = defineType({
   type: 'document',
   icon: CommentIcon,
   fields: [
-    defineField({ name: 'name', title: 'Name', type: 'string', validation: (r) => r.required() }),
-    defineField({ name: 'quote', title: 'What they said', type: 'text', rows: 4, validation: (r) => r.required().max(400) }),
-    defineField({ name: 'retreat', title: 'Retreat', type: 'reference', to: [{ type: 'retreat' }] }),
+    defineField({
+      name: 'approved',
+      title: 'Show on website',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Reviews sent from the website start switched off. Read it, then switch it on and Publish.',
+    }),
+    defineField({ name: 'name', title: 'Name', type: 'string', description: 'Shown as first name + initial, e.g. "Mona A."', validation: (r) => r.required() }),
+    defineField({
+      name: 'rating',
+      title: 'Rating',
+      type: 'number',
+      options: { list: [5, 4, 3, 2, 1].map((n) => ({ title: '★'.repeat(n), value: n })), layout: 'radio', direction: 'horizontal' },
+      validation: (r) => r.min(1).max(5).integer(),
+    }),
+    defineField({ name: 'quote', title: 'Review', type: 'text', rows: 5, validation: (r) => r.required().max(800) }),
+    defineField({ name: 'retreat', title: 'Retreat', type: 'reference', to: [{ type: 'retreat' }], weak: true }),
     defineField({ name: 'photo', title: 'Photo', type: 'image', options: { hotspot: true } }),
+    defineField({ name: 'source', title: 'Sent from', type: 'string', readOnly: true, hidden: ({ value }) => !value }),
   ],
-  preview: { select: { title: 'name', subtitle: 'quote', media: 'photo' } },
+  orderings: [{ title: 'Newest first', name: 'createdDesc', by: [{ field: '_createdAt', direction: 'desc' }] }],
+  preview: {
+    select: { name: 'name', quote: 'quote', rating: 'rating', approved: 'approved', media: 'photo' },
+    prepare: ({ name, quote, rating, approved, media }) => ({
+      title: `${approved === false ? '⏳ ' : ''}${name || 'Unknown'}${rating ? ` · ${'★'.repeat(rating)}` : ''}`,
+      subtitle: quote,
+      media,
+    }),
+  },
 })
