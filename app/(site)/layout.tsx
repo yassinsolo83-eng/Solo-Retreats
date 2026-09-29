@@ -31,7 +31,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <div className="site min-h-screen bg-sand text-ink">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-pine focus:px-4 focus:py-2 focus:text-sand">Skip to content</a>
       <Nav />
-      <main id="main">{children}</main>
+      <main id="main" className="pt-20">{children}</main>
       <Footer settings={settings} />
       <MobileBar whatsappNumber={settings?.whatsappNumber} />
     </div>
