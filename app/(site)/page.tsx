@@ -26,7 +26,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative flex min-h-[88svh] items-end overflow-hidden bg-pine text-sand">
+      <section className="relative -mt-20 flex min-h-[88svh] items-end overflow-hidden bg-pine text-sand">
         <SanityImage image={heroImage} width={2000} height={1300} priority sizes="100vw" className="absolute inset-0 size-full" alt="" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,32,.35)_0%,rgba(20,38,32,.15)_35%,rgba(20,38,32,.85)_100%)]" />
         <div className="relative mx-auto w-full max-w-7xl px-5 pb-14 pt-32 lg:px-10 lg:pb-20">
