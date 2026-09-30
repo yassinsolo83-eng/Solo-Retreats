@@ -125,6 +125,14 @@ export const retreat = defineType({
       description: 'Paste the Google Maps share link (e.g. https://maps.app.goo.gl/...). Shows an "Open in Maps" link on the retreat page.',
     }),
     defineField({ name: 'meetingTime', title: 'Meeting time', type: 'string', group: 'trip', placeholder: '11:00 PM' }),
+    defineField({
+      name: 'showWeather',
+      title: 'Show weather on the page',
+      type: 'boolean',
+      group: 'trip',
+      initialValue: true,
+      description: 'Updates by itself. Works when the destination or camp location names a Sinai town (Nuweiba, Ras Shitan, Dahab, Sharm, Taba, Saint Catherine, Ras Sudr, El Tor).',
+    }),
 
     simpleBlocks('description', 'Full description'),
     defineField({

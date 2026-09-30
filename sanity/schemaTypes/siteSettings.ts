@@ -30,6 +30,14 @@ export const siteSettings = defineType({
 
     defineField({ name: 'heroTitle', title: 'Headline', type: 'string', group: 'home', initialValue: 'Small-group retreats to the quiet corners of Egypt' }),
     defineField({ name: 'heroText', title: 'Intro text', type: 'text', rows: 3, group: 'home' }),
+    defineField({
+      name: 'showSinaiWeather',
+      title: 'Show "Sinai right now" weather',
+      type: 'boolean',
+      group: 'home',
+      initialValue: true,
+      description: 'Live temperatures for Sharm, Dahab, Nuweiba, Taba and Saint Catherine on the home page. Updates by itself every hour.',
+    }),
     imageWithAlt('heroImage', 'Main photo'),
     defineField({
       name: 'highlights',

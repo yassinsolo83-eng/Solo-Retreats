@@ -51,6 +51,7 @@ export type RetreatDetail = RetreatCard & {
   meetingPoint?: string | null
   meetingPointMap?: string | null
   meetingTime?: string | null
+  showWeather?: boolean | null
   images?: SanityImage[] | null
   camp?: PartnerSummary | null
   bus?: PartnerSummary | null
@@ -82,6 +83,7 @@ export type SiteSettings = {
   aboutTitle?: string | null
   aboutText?: PortableTextBlock[] | null
   seoDescription?: string | null
+  showSinaiWeather?: boolean | null
   shareImage?: SanityImage | null
 }
 

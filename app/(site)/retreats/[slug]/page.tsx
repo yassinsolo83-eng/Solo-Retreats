@@ -9,6 +9,7 @@ import { RichText } from '@/components/site/rich-text'
 import { SanityImage } from '@/components/site/sanity-image'
 import { SharePanel } from '@/components/site/share-panel'
 import { averageRating, reviewerName, Stars } from '@/components/site/stars'
+import { RetreatWeather } from '@/components/site/weather'
 import { formatDeparture, formatRangeShort, isBookable, nights, upcomingDepartures } from '@/lib/dates'
 import { BRAND, siteUrl } from '@/lib/site'
 import type { PartnerSummary, RetreatDetail, SiteSettings } from '@/lib/types'
@@ -141,6 +142,10 @@ export default async function RetreatPage({ params }: Props) {
                 ))}
               </ol>
             </section>
+          )}
+
+          {!completed && retreat.showWeather !== false && (
+            <RetreatWeather departure={departures[0]} destination={retreat.destination} campLocation={retreat.camp?.location} />
           )}
 
           {(!!retreat.included?.length || !!retreat.notIncluded?.length) && (
