@@ -24,7 +24,9 @@ export type RetreatCard = {
   departures?: Departure[] | null
   coverImage?: SanityImage | null
   campName?: string | null
+  campLocation?: string | null
   busName?: string | null
+  showWeather?: boolean | null
 }
 
 export type PartnerSummary = {
@@ -51,7 +53,6 @@ export type RetreatDetail = RetreatCard & {
   meetingPoint?: string | null
   meetingPointMap?: string | null
   meetingTime?: string | null
-  showWeather?: boolean | null
   images?: SanityImage[] | null
   camp?: PartnerSummary | null
   bus?: PartnerSummary | null
@@ -84,6 +85,7 @@ export type SiteSettings = {
   aboutText?: PortableTextBlock[] | null
   seoDescription?: string | null
   showSinaiWeather?: boolean | null
+  weatherPlaces?: string[] | null
   shareImage?: SanityImage | null
 }
 

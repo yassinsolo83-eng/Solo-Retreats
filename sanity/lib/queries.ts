@@ -18,7 +18,9 @@ const retreatCard = `
   departures[]{ _key, departureDate, returnDate, note },
   coverImage${image},
   "campName": camp->name,
-  "busName": busCompany->name
+  "campLocation": camp->location,
+  "busName": busCompany->name,
+  showWeather
 `
 
 export const settingsQuery = defineQuery(`*[_type == "siteSettings"][0]{
@@ -26,7 +28,7 @@ export const settingsQuery = defineQuery(`*[_type == "siteSettings"][0]{
   heroTitle, heroText, heroImage${image}, highlights[]{ _key, title, text },
   organizerName, organizerPhoto${image}, aboutTitle, aboutText,
   seoDescription, shareImage${image},
-  showSinaiWeather
+  showSinaiWeather, weatherPlaces
 }`)
 
 export const upcomingRetreatsQuery = defineQuery(`*[_type == "retreat" && !${ended} && defined(slug.current)]
@@ -42,7 +44,7 @@ export const retreatBySlugQuery = defineQuery(`*[_type == "retreat" && slug.curr
   description,
   itinerary[]{ _key, title, text },
   included, notIncluded, whatToBring,
-  meetingPoint, meetingPointMap, meetingTime, showWeather,
+  meetingPoint, meetingPointMap, meetingTime,
   images[]${image},
   "camp": camp->{ name, "slug": slug.current, location, summary, coverImage${image} },
   "bus": busCompany->{ name, "slug": slug.current, vehicleType, summary, coverImage${image} },

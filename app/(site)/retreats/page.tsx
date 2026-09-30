@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { EmptyState, PageHeader } from '@/components/site/page-header'
 import { RetreatCard } from '@/components/site/retreat-card'
+import { weatherForCards } from '@/components/site/weather'
 import type { RetreatCard as RetreatCardType } from '@/lib/types'
 import { sanityFetch } from '@/sanity/lib/client'
 import { pastRetreatsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
@@ -13,13 +14,14 @@ export default async function RetreatsPage() {
     sanityFetch<RetreatCardType[]>(upcomingRetreatsQuery, {}, []),
     sanityFetch<RetreatCardType[]>(pastRetreatsQuery, {}, []),
   ])
+  const weather = await weatherForCards(upcoming)
   return (
     <>
       <PageHeader title="Upcoming retreats" intro="Each trip is planned end to end: where you stay, how you get there and what the days look like." />
       <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-10">
         {upcoming.length ? (
           <div className="grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
-            {upcoming.map((r) => <RetreatCard key={r._id} retreat={r} />)}
+            {upcoming.map((r) => <RetreatCard key={r._id} retreat={r} weather={weather.get(r._id)} />)}
           </div>
         ) : (
           <EmptyState title="New trips are on the way" text="There are no open retreats right now. The next ones will show up here first." />

@@ -1,74 +1,21 @@
 import 'server-only'
 import { siteUrl } from './site'
 import type { Departure } from './types'
+import type { WeatherPlace } from './weather-places'
+
+export { DEFAULT_HOME_PLACES, findPlace, SINAI_PLACES } from './weather-places'
+export type { WeatherPlace } from './weather-places'
 
 /**
- * Weather for Sinai.
+ * Weather for Sinai. Everything updates by itself, nothing is typed in by hand.
  *
- * - Live forecast: MET Norway (api.met.no). Free, no API key, commercial use
- *   allowed as long as we credit "MET Norway" next to the data.
- *   It covers roughly the next 9 days.
- * - Dates further away: typical monthly highs/lows from the table below.
- *
- * Results are cached by Next.js for one hour, so the site calls MET Norway
- * at most once per place per hour, whatever the traffic.
+ * - Live forecast (about the next 9 days): MET Norway, api.met.no.
+ *   Free, no key, commercial use allowed with credit. Cached for 1 hour.
+ * - Typical weather for dates further away: NASA POWER daily history for the
+ *   last 10 full years, averaged for the same week of the year.
+ *   Free, no key, no usage restrictions. Cached for 30 days, and the 10-year
+ *   window moves forward by itself every January.
  */
-
-export type WeatherPlace = {
-  id: string
-  name: string
-  /** Lowercase words that identify the place in a destination or camp location. */
-  match: string[]
-  lat: number
-  lon: number
-  /** Typical [high, low] in °C for Jan…Dec. Approximate long-term averages. */
-  climate: [number, number][]
-}
-
-// Coastal Gulf of Aqaba climate, reused for places close to each other.
-const NUWEIBA_CLIMATE: [number, number][] = [
-  [21, 10], [22, 11], [25, 14], [29, 17], [33, 21], [36, 24],
-  [37, 26], [37, 26], [34, 24], [30, 21], [26, 16], [22, 12],
-]
-
-export const SINAI_PLACES: WeatherPlace[] = [
-  { id: 'ras-shitan', name: 'Ras Shitan', match: ['ras shitan', 'ras shetan', 'ras shaitan'], lat: 29.13, lon: 34.69, climate: NUWEIBA_CLIMATE },
-  { id: 'nuweiba', name: 'Nuweiba', match: ['nuweiba', 'nuwaiba', 'nueiba'], lat: 29.03, lon: 34.66, climate: NUWEIBA_CLIMATE },
-  {
-    id: 'dahab', name: 'Dahab', match: ['dahab'], lat: 28.5, lon: 34.51,
-    climate: [[22, 12], [23, 13], [25, 15], [29, 19], [33, 22], [35, 25], [37, 27], [37, 27], [35, 25], [31, 22], [27, 17], [23, 14]],
-  },
-  {
-    id: 'sharm', name: 'Sharm El Sheikh', match: ['sharm'], lat: 27.91, lon: 34.33,
-    climate: [[22, 13], [22, 13], [25, 16], [29, 19], [33, 23], [36, 26], [37, 27], [37, 27], [35, 26], [31, 23], [27, 18], [23, 15]],
-  },
-  {
-    id: 'taba', name: 'Taba', match: ['taba'], lat: 29.49, lon: 34.89,
-    climate: [[21, 10], [22, 11], [26, 14], [30, 18], [35, 22], [38, 25], [39, 27], [39, 27], [36, 25], [32, 21], [27, 16], [22, 12]],
-  },
-  {
-    id: 'st-catherine', name: 'Saint Catherine', match: ['catherine', 'katherine'], lat: 28.56, lon: 33.95,
-    climate: [[13, 2], [14, 3], [17, 5], [21, 9], [25, 12], [28, 15], [30, 17], [30, 17], [27, 15], [24, 11], [19, 7], [15, 3]],
-  },
-  {
-    id: 'ras-sudr', name: 'Ras Sudr', match: ['sudr', 'sidr'], lat: 29.59, lon: 32.71,
-    climate: [[20, 10], [21, 11], [23, 13], [27, 16], [31, 20], [34, 23], [35, 25], [35, 25], [33, 23], [30, 20], [25, 15], [21, 12]],
-  },
-  {
-    id: 'el-tor', name: 'El Tor', match: ['el tor', 'al tur', 'el tur'], lat: 28.24, lon: 33.62,
-    climate: [[21, 12], [22, 12], [24, 15], [28, 18], [32, 22], [34, 24], [35, 26], [36, 26], [33, 24], [30, 21], [26, 17], [22, 13]],
-  },
-]
-
-/** Places shown in the "Sinai right now" strip on the home page. */
-export const SINAI_OVERVIEW = ['sharm', 'dahab', 'nuweiba', 'taba', 'st-catherine']
-
-/** Finds the Sinai place mentioned in any of the given texts (destination, camp location). */
-export function findPlace(...texts: (string | null | undefined)[]) {
-  const haystack = texts.filter(Boolean).join(' ').toLowerCase()
-  if (!haystack) return null
-  return SINAI_PLACES.find((p) => p.match.some((word) => haystack.includes(word))) ?? null
-}
 
 export type DayWeather = {
   date: string // YYYY-MM-DD, Cairo time
@@ -78,14 +25,22 @@ export type DayWeather = {
   source: 'forecast' | 'typical'
 }
 
+type DayRange = { high: number; low: number; symbol?: string }
+
 export type Forecast = {
   now?: { temp: number; symbol?: string }
-  days: Map<string, Omit<DayWeather, 'date' | 'source'>>
+  days: Map<string, DayRange>
+}
+
+export function todayInCairo() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo' }).format(new Date())
 }
 
 const cairoDate = (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo' }).format(new Date(iso))
 const cairoHour = (iso: string) =>
   Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Cairo', hour: '2-digit', hourCycle: 'h23' }).format(new Date(iso)))
+
+/* ---------- Live forecast: MET Norway ---------- */
 
 type MetEntry = {
   time: string
@@ -96,7 +51,7 @@ type MetEntry = {
   }
 }
 
-/** Live forecast for one place. Returns null if MET Norway is unreachable, so pages still render. */
+/** Returns null if MET Norway can't be reached, so pages still render. */
 export async function getForecast(place: WeatherPlace): Promise<Forecast | null> {
   try {
     const url = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${place.lat.toFixed(2)}&lon=${place.lon.toFixed(2)}`
@@ -116,7 +71,7 @@ export async function getForecast(place: WeatherPlace): Promise<Forecast | null>
       const date = cairoDate(entry.time)
       const bucket = buckets.get(date) ?? { temps: [], symbolScore: 99 }
       bucket.temps.push(temp)
-      // Use the symbol closest to midday as the icon for the day.
+      // The symbol closest to midday becomes the icon for the day.
       const symbol = entry.data.next_1_hours?.summary?.symbol_code ?? entry.data.next_6_hours?.summary?.symbol_code
       const score = Math.abs(cairoHour(entry.time) - 12)
       if (symbol && score < bucket.symbolScore) {
@@ -126,10 +81,9 @@ export async function getForecast(place: WeatherPlace): Promise<Forecast | null>
       buckets.set(date, bucket)
     }
 
-    const days = new Map<string, Omit<DayWeather, 'date' | 'source'>>()
+    const days = new Map<string, DayRange>()
     for (const [date, b] of buckets) {
-      // Skip half-covered days (usually the last one in the forecast).
-      if (b.temps.length < 3) continue
+      if (b.temps.length < 3) continue // half-covered day, usually the last one
       days.set(date, { high: Math.round(Math.max(...b.temps)), low: Math.round(Math.min(...b.temps)), symbol: b.symbol })
     }
 
@@ -144,6 +98,68 @@ export async function getForecast(place: WeatherPlace): Promise<Forecast | null>
   }
 }
 
+/* ---------- Typical weather: NASA POWER history ---------- */
+
+const YEARS = 10
+const WINDOW = 3 // days on each side of the date, so each value averages ~70 real days
+
+/** Day of year 0–364, with 29 Feb counted as 28 Feb. */
+function dayOfYear(month: number, day: number) {
+  const d = month === 2 && day === 29 ? 28 : day
+  return Math.round((Date.UTC(2001, month - 1, d) - Date.UTC(2001, 0, 1)) / 86_400_000)
+}
+
+type Climate = { high: number; low: number }[] // index = day of year
+
+/** Returns null if NASA POWER can't be reached. */
+export async function getClimate(place: WeatherPlace): Promise<Climate | null> {
+  try {
+    const lastYear = Number(todayInCairo().slice(0, 4)) - 1
+    const url =
+      'https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX,T2M_MIN&community=RE&format=JSON' +
+      `&latitude=${place.lat.toFixed(2)}&longitude=${place.lon.toFixed(2)}&start=${lastYear - YEARS + 1}0101&end=${lastYear}1231`
+    const res = await fetch(url, { next: { revalidate: 60 * 60 * 24 * 30 } })
+    if (!res.ok) return null
+    const json = (await res.json()) as {
+      properties?: { parameter?: { T2M_MAX?: Record<string, number>; T2M_MIN?: Record<string, number> } }
+    }
+    const maxes = json.properties?.parameter?.T2M_MAX ?? {}
+    const mins = json.properties?.parameter?.T2M_MIN ?? {}
+
+    const sum = Array.from({ length: 365 }, () => ({ high: 0, low: 0, n: 0 }))
+    for (const [key, high] of Object.entries(maxes)) {
+      const low = mins[key]
+      // NASA marks missing values as -999.
+      if (typeof high !== 'number' || typeof low !== 'number' || high < -100 || low < -100) continue
+      const doy = dayOfYear(Number(key.slice(4, 6)), Number(key.slice(6, 8)))
+      sum[doy].high += high
+      sum[doy].low += low
+      sum[doy].n += 1
+    }
+    if (sum.every((s) => !s.n)) return null
+
+    return sum.map((_, doy) => {
+      let high = 0, low = 0, n = 0
+      for (let k = -WINDOW; k <= WINDOW; k++) {
+        const s = sum[(doy + k + 365) % 365]
+        high += s.high
+        low += s.low
+        n += s.n
+      }
+      return n ? { high: Math.round(high / n), low: Math.round(low / n) } : { high: NaN, low: NaN }
+    })
+  } catch {
+    return null
+  }
+}
+
+function typicalFor(climate: Climate | null, date: string) {
+  const value = climate?.[dayOfYear(Number(date.slice(5, 7)), Number(date.slice(8, 10)))]
+  return value && Number.isFinite(value.high) ? value : null
+}
+
+/* ---------- Putting it together ---------- */
+
 function eachDate(from: string, to: string) {
   const dates: string[] = []
   const d = new Date(`${from}T00:00:00Z`)
@@ -155,18 +171,31 @@ function eachDate(from: string, to: string) {
   return dates
 }
 
-/** Day-by-day weather for a trip: forecast where available, typical values for the rest. */
-export function tripWeather(place: WeatherPlace, departure: Departure, forecast: Forecast | null): DayWeather[] {
-  return eachDate(departure.departureDate, departure.returnDate).map((date) => {
+/** Day by day for a trip: live forecast where available, typical weather for the rest. */
+export async function getTripWeather(place: WeatherPlace, departure: Departure): Promise<DayWeather[]> {
+  const dates = eachDate(departure.departureDate, departure.returnDate)
+  const forecast = await getForecast(place)
+  const needsClimate = dates.some((date) => !forecast?.days.has(date))
+  const climate = needsClimate ? await getClimate(place) : null
+
+  return dates.flatMap((date): DayWeather[] => {
     const live = forecast?.days.get(date)
-    if (live) return { date, ...live, source: 'forecast' }
-    const [high, low] = place.climate[Number(date.slice(5, 7)) - 1]
-    return { date, high, low, source: 'typical' }
+    if (live) return [{ date, ...live, source: 'forecast' }]
+    const typical = typicalFor(climate, date)
+    return typical ? [{ date, ...typical, source: 'typical' }] : []
   })
 }
 
-export function todayInCairo() {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo' }).format(new Date())
+/** One line summary for a trip, e.g. for a retreat card: warmest day and coolest night. */
+export function summarize(days: DayWeather[]) {
+  if (!days.length) return null
+  const firstLive = days.find((d) => d.source === 'forecast')
+  return {
+    high: Math.max(...days.map((d) => d.high)),
+    low: Math.min(...days.map((d) => d.low)),
+    symbol: firstLive?.symbol,
+    source: firstLive ? ('forecast' as const) : ('typical' as const),
+  }
 }
 
 /** MET Norway symbol code → emoji + short label. */

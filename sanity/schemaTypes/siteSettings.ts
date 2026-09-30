@@ -1,5 +1,6 @@
 import { CogIcon } from '@sanity/icons/Cog'
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { SINAI_PLACES } from '../../lib/weather-places'
 import { imageWithAlt, simpleBlocks } from './fields'
 
 export const siteSettings = defineType({
@@ -36,7 +37,18 @@ export const siteSettings = defineType({
       type: 'boolean',
       group: 'home',
       initialValue: true,
-      description: 'Live temperatures for Sharm, Dahab, Nuweiba, Taba and Saint Catherine on the home page. Updates by itself every hour.',
+      description: 'A live weather section on the home page, under "Coming up". Updates by itself every hour.',
+    }),
+    defineField({
+      name: 'weatherPlaces',
+      title: 'Places in "Sinai right now"',
+      type: 'array',
+      group: 'home',
+      of: [{ type: 'string' }],
+      options: { list: SINAI_PLACES.map((p) => ({ title: p.name, value: p.id })) },
+      description: 'Pick up to 5. Leave empty for Sharm, Dahab, Nuweiba, Taba and Saint Catherine.',
+      hidden: ({ document }) => document?.showSinaiWeather === false,
+      validation: (rule) => rule.max(5).unique(),
     }),
     imageWithAlt('heroImage', 'Main photo'),
     defineField({

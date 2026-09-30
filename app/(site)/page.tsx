@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/site/page-header'
 import { BRAND, siteUrl } from '@/lib/site'
 import { SanityImage } from '@/components/site/sanity-image'
 import { reviewerName, Stars } from '@/components/site/stars'
+import { SinaiWeather, weatherForCards } from '@/components/site/weather'
 import type { RetreatCard as RetreatCardType, SiteSettings, Testimonial } from '@/lib/types'
 import { sanityFetch } from '@/sanity/lib/client'
 import { settingsQuery, testimonialsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
@@ -24,6 +25,7 @@ export default async function HomePage() {
     sanityFetch<RetreatCardType[]>(upcomingRetreatsQuery, {}, []),
     sanityFetch<Testimonial[]>(testimonialsQuery, {}, []),
   ])
+  const weather = await weatherForCards(retreats.slice(0, 3))
   const heroImage = settings?.heroImage ?? retreats[0]?.coverImage
   const headlineWords = (settings?.heroTitle || 'Small-group retreats to the quiet corners of Egypt').split(/\s+/)
   const organization = {
@@ -72,12 +74,14 @@ export default async function HomePage() {
         </div>
         {retreats.length ? (
           <div className="grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
-            {retreats.slice(0, 3).map((r) => <RetreatCard key={r._id} retreat={r} />)}
+            {retreats.slice(0, 3).map((r) => <RetreatCard key={r._id} retreat={r} weather={weather.get(r._id)} />)}
           </div>
         ) : (
           <EmptyState title="New trips are on the way" text="The next retreats are being planned right now. Follow us to hear about them first." action={settings?.instagram ? <a href={settings.instagram} className="text-clay underline underline-offset-4" target="_blank" rel="noreferrer">Follow on Instagram</a> : null} />
         )}
       </section>
+
+      {settings?.showSinaiWeather !== false && <SinaiWeather placeIds={settings?.weatherPlaces} />}
 
       <section className="bg-pine px-5 py-20 text-sand lg:px-10 lg:py-28">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.8fr_1.2fr]">

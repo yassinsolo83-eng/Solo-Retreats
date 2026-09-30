@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { formatRangeShort, nights, statusLabel, upcomingDepartures } from '@/lib/dates'
 import type { RetreatCard as RetreatCardType } from '@/lib/types'
 import { SanityImage } from './sanity-image'
+import type { CardWeather } from './weather'
 
 export function StatusPill({ retreat, onDark = false }: { retreat: Pick<RetreatCardType, 'status' | 'spotsLeft'>; onDark?: boolean }) {
   const label = retreat.status !== 'full' && retreat.status !== 'completed' && retreat.spotsLeft
@@ -13,7 +14,7 @@ export function StatusPill({ retreat, onDark = false }: { retreat: Pick<RetreatC
   return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${tone}`}>{label}</span>
 }
 
-export function RetreatCard({ retreat, past = false }: { retreat: RetreatCardType; past?: boolean }) {
+export function RetreatCard({ retreat, past = false, weather }: { retreat: RetreatCardType; past?: boolean; weather?: CardWeather | null }) {
   const next = past ? retreat.departures?.[0] : upcomingDepartures(retreat.departures)[0]
   const more = past ? 0 : upcomingDepartures(retreat.departures).length - 1
   return (
@@ -21,6 +22,15 @@ export function RetreatCard({ retreat, past = false }: { retreat: RetreatCardTyp
       <div className="relative overflow-hidden rounded-[1.75rem]">
         <SanityImage image={retreat.coverImage} width={720} height={860} className={`aspect-[5/6] w-full transition-transform duration-700 group-hover:scale-[1.03] ${past ? 'grayscale-[40%]' : ''}`} sizes="(max-width: 1024px) 100vw, 33vw" />
         <div className="absolute left-4 top-4"><StatusPill retreat={retreat} /></div>
+        {weather && !past && (
+          <span
+            title={weather.typical ? 'Usual temperatures for these dates' : 'Live forecast'}
+            className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-sand/90 px-3 py-1 text-xs font-semibold text-ink backdrop-blur"
+          >
+            {weather.icon ? <span aria-hidden="true">{weather.icon}</span> : <span className="font-normal text-stone">Usually</span>}
+            {weather.high}° <span className="font-normal text-stone">/ {weather.low}°</span>
+          </span>
+        )}
       </div>
       <div className="mt-5 flex items-baseline justify-between gap-4">
         <h3 className="font-display text-3xl leading-tight">{retreat.title}</h3>
