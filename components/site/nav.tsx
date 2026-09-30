@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { navLinks } from '@/lib/site'
 import { Wordmark } from './logo'
@@ -13,12 +13,19 @@ export function Nav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
+  const sunId = useId().replace(/:/g, '')
   const overHero = pathname === '/'
 
   // Layout effect: read the scroll position before the first paint, so a page opened
   // or refreshed half-way down shows the solid bar straight away.
   useIsomorphicLayoutEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40)
+      // Sun in the logo sets over the first ~screen of scrolling and rises again on the way up.
+      const progress = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * 0.9)))
+      headerRef.current?.style.setProperty('--sun', progress.toFixed(3))
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('load', onScroll)
@@ -48,12 +55,13 @@ export function Nav() {
   return (
     <>
     <header
+      ref={headerRef}
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
         transparent ? 'bg-transparent text-sand' : 'border-b border-ink/10 bg-sand/90 text-ink backdrop-blur-md'
       }`}
     >
       <nav aria-label="Main" className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-10">
-        <Link href="/" onClick={() => handleClick('/')} className="-my-2 py-2"><Wordmark className="h-6 w-auto sm:h-7" /></Link>
+        <Link href="/" onClick={() => handleClick('/')} className="-my-2 py-2"><Wordmark className="h-6 w-auto sm:h-7" setting clipId={`sun-${sunId}`} /></Link>
         <div className="hidden items-center gap-8 text-[15px] lg:flex">
           {navLinks.map((link) => (
             <Link
