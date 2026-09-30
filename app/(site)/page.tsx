@@ -25,6 +25,7 @@ export default async function HomePage() {
     sanityFetch<Testimonial[]>(testimonialsQuery, {}, []),
   ])
   const heroImage = settings?.heroImage ?? retreats[0]?.coverImage
+  const headlineWords = (settings?.heroTitle || 'Small-group retreats to the quiet corners of Egypt').split(/\s+/)
   const organization = {
     '@context': 'https://schema.org',
     '@type': 'TravelAgency',
@@ -43,13 +44,17 @@ export default async function HomePage() {
     <>
       <JsonLd data={organization} />
       <section className="relative -mt-20 flex min-h-[88svh] items-end overflow-hidden bg-pine text-sand">
-        <SanityImage image={heroImage} width={2000} height={1300} priority sizes="100vw" className="absolute inset-0 size-full" alt="" />
+        <SanityImage image={heroImage} width={2000} height={1300} priority sizes="100vw" className="hero-breathe absolute inset-0 size-full" alt="" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,32,.35)_0%,rgba(20,38,32,.15)_35%,rgba(20,38,32,.85)_100%)]" />
         <div className="relative mx-auto w-full max-w-7xl px-5 pb-14 pt-32 lg:px-10 lg:pb-20">
           <h1 className="max-w-5xl font-display text-[clamp(2.9rem,8.5vw,7.5rem)] font-light leading-[0.95] tracking-[-0.03em]">
-            {settings?.heroTitle || 'Small-group retreats to the quiet corners of Egypt'}
+            {headlineWords.map((word, i) => (
+              <span key={i}>
+                <span className="word-rise" style={{ '--i': i } as React.CSSProperties}>{word}</span>{i < headlineWords.length - 1 ? ' ' : ''}
+              </span>
+            ))}
           </h1>
-          <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <div className="fade-up mt-10 flex flex-col gap-8 md:flex-row md:items-end md:justify-between" style={{ '--d': `${headlineWords.length * 90 + 600}ms` } as React.CSSProperties}>
             <p className="max-w-md text-lg leading-relaxed text-sand/85">
               {settings?.heroText || 'We plan the trip, pick the camp and the bus, and travel with you. You bring yourself.'}
             </p>
