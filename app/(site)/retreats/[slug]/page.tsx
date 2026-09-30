@@ -6,6 +6,7 @@ import { BookingForm } from '@/components/site/booking-form'
 import { JsonLd } from '@/components/site/json-ld'
 import { StatusPill } from '@/components/site/retreat-card'
 import { RichText } from '@/components/site/rich-text'
+import { PhotoMosaic } from '@/components/site/photos'
 import { SanityImage } from '@/components/site/sanity-image'
 import { SharePanel } from '@/components/site/share-panel'
 import { averageRating, reviewerName, Stars } from '@/components/site/stars'
@@ -164,11 +165,11 @@ export default async function RetreatPage({ params }: Props) {
           {!!retreat.images?.length && (
             <section className="mt-16">
               <h2 className="font-display text-4xl tracking-tight">Photos</h2>
-              <div className="mt-8 grid grid-cols-2 gap-3">
-                {retreat.images.map((img, i) => (
-                  <SanityImage key={i} image={img} width={700} height={i % 3 === 0 ? 520 : 700} className={`w-full rounded-2xl ${i % 3 === 0 ? 'col-span-2 aspect-[4/3]' : 'aspect-square'}`} sizes="(max-width: 1024px) 50vw, 400px" />
-                ))}
-              </div>
+              <PhotoMosaic
+                className="mt-8"
+                title={retreat.title}
+                photos={retreat.images.map((img, i) => ({ key: img._key ?? String(i), image: img, caption: img.alt }))}
+              />
             </section>
           )}
 
@@ -222,7 +223,7 @@ export default async function RetreatPage({ params }: Props) {
             )}
           </div>
           <div className="mt-6">
-            <SharePanel url={pageUrl} title={retreat.title} subtitle={first ? `${retreat.destination} · ${formatRangeShort(first)}` : retreat.destination} />
+            <SharePanel url={pageUrl} imagePath={`/retreats/${retreat.slug}/share-image`} title={retreat.title} subtitle={first ? `${retreat.destination} · ${formatRangeShort(first)}` : retreat.destination} />
           </div>
         </aside>
       </div>

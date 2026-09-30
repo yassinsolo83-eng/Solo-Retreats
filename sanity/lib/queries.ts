@@ -2,6 +2,10 @@ import { defineQuery } from 'next-sanity'
 
 const image = `{ asset, hotspot, crop, alt }`
 
+/** Photos shown in galleries also carry their size and a tiny blurred preview. */
+const photoMeta = `"width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height, "lqip": asset->metadata.lqip`
+const photo = `{ _key, asset, hotspot, crop, alt, ${photoMeta} }`
+
 /** A retreat counts as completed when marked so, or once every return date is before today (Cairo time). */
 const ended = `(status == "completed" || count(departures[returnDate >= $today]) == 0)`
 
@@ -45,7 +49,7 @@ export const retreatBySlugQuery = defineQuery(`*[_type == "retreat" && slug.curr
   itinerary[]{ _key, title, text },
   included, notIncluded, whatToBring,
   meetingPoint, meetingPointMap, meetingTime,
-  images[]${image},
+  images[]${photo},
   "camp": camp->{ name, "slug": slug.current, location, summary, coverImage${image} },
   "bus": busCompany->{ name, "slug": slug.current, vehicleType, summary, coverImage${image} },
   "testimonials": *[_type == "testimonial" && retreat._ref == ^._id && approved != false] | order(_createdAt desc){ _id, name, quote, rating, _createdAt, photo${image} }
@@ -66,13 +70,14 @@ export const partnerSlugsQuery = defineQuery(`*[_type in ["camp", "busCompany"] 
 export const partnerBySlugQuery = defineQuery(`*[_type in ["camp", "busCompany"] && slug.current == $slug][0]{
   ${partnerFields},
   description, amenities, instagram, facebook, googleMaps,
-  images[]${image},
+  "coverPhoto": coverImage${photo},
+  images[]${photo},
   "retreats": *[_type == "retreat" && references(^._id) && !${ended} && defined(slug.current)]{ ${retreatCard} }
 }`)
 
 export const galleryQuery = defineQuery(`*[_type == "galleryImage" && defined(image.asset)]
   | order(coalesce(order, 9999) asc, _createdAt desc){
-  _id, caption, category, image{ asset, hotspot, crop, "alt": ^.caption }, "retreat": retreat->title
+  _id, caption, category, image{ asset, hotspot, crop, "alt": ^.caption, ${photoMeta} }, "retreat": retreat->title
 }`)
 
 export const faqsQuery = defineQuery(`*[_type == "faq"] | order(coalesce(order, 9999) asc, _createdAt asc){ _id, question, answer }`)

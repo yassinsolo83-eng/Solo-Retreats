@@ -5,6 +5,11 @@ export type SanityImage = {
   hotspot?: unknown
   crop?: unknown
   alt?: string | null
+  /** Only on photos fetched for galleries. */
+  _key?: string
+  width?: number | null
+  height?: number | null
+  lqip?: string | null
 }
 
 export type RetreatStatus = 'open' | 'almostFull' | 'full' | 'completed'
@@ -65,6 +70,7 @@ export type PartnerDetail = PartnerSummary & {
   instagram?: string | null
   facebook?: string | null
   googleMaps?: string | null
+  coverPhoto?: SanityImage | null
   images?: SanityImage[] | null
   retreats?: RetreatCard[] | null
 }

@@ -12,7 +12,8 @@ import {
 } from '@/lib/weather'
 
 const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: 'UTC' })
-const dayLabel = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' })
+const weekdayOnly = new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: 'UTC' })
+const shortDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 const asDate = (value: string) => new Date(`${value}T00:00:00Z`)
 
 function Credit({ typical = false, className = '' }: { typical?: boolean; className?: string }) {
@@ -45,21 +46,44 @@ export async function SinaiWeather({ placeIds }: { placeIds?: string[] | null })
 
   return (
     <section className="mx-auto max-w-7xl px-5 pb-20 lg:px-10 lg:pb-28">
-      <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div className="mb-8 flex flex-col justify-between gap-3 sm:mb-10 sm:flex-row sm:items-end">
         <div>
-          <h2 className="font-display text-5xl leading-none tracking-tight sm:text-6xl">Sinai right now</h2>
-          <p className="mt-4 max-w-md text-stone">Live temperatures from the places we travel to.</p>
+          <h2 className="font-display text-4xl leading-none tracking-tight sm:text-6xl">Sinai right now</h2>
+          <p className="mt-3 max-w-md text-stone sm:mt-4">Live temperatures from the places we travel to.</p>
         </div>
-        <Credit className="text-stone" />
+        <Credit className="hidden text-stone sm:block" />
       </div>
 
-      <ul className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0">
+      {/* Phones: one compact row per place */}
+      <ul className="overflow-hidden rounded-3xl bg-dune sm:hidden">
+        {cards.map(({ place, forecast }) => {
+          const now = describeSymbol(forecast.now!.symbol)
+          const todayRange = forecast.days.get(today)
+          return (
+            <li key={place.id} className="flex items-center gap-4 border-t border-ink/10 px-5 py-4 first:border-t-0">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[17px] font-medium">{place.name}</p>
+                <p className="mt-0.5 text-sm text-stone">
+                  {now.label}
+                  {todayRange && <span className="whitespace-nowrap">, {todayRange.high}° / {todayRange.low}°</span>}
+                </p>
+              </div>
+              <span aria-hidden="true" className="text-2xl leading-none">{now.icon}</span>
+              <p className="w-16 text-right font-display text-4xl font-light leading-none tabular-nums">{forecast.now!.temp}°</p>
+            </li>
+          )
+        })}
+      </ul>
+      <Credit className="mt-3 text-stone sm:hidden" />
+
+      {/* Tablets and up: a card per place with the next three days */}
+      <ul className="hidden gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-5">
         {cards.map(({ place, forecast }) => {
           const now = describeSymbol(forecast.now!.symbol)
           const todayRange = forecast.days.get(today)
           const nextDays = [...forecast.days.entries()].filter(([date]) => date > today).slice(0, 3)
           return (
-            <li key={place.id} className="flex w-[72%] shrink-0 snap-start flex-col rounded-[1.75rem] bg-dune p-6 sm:w-[40%] lg:w-auto">
+            <li key={place.id} className="flex flex-col rounded-[1.75rem] bg-dune p-6">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="font-display text-2xl leading-tight">{place.name}</h3>
                 <span aria-hidden="true" className="text-3xl leading-none">{now.icon}</span>
@@ -67,7 +91,7 @@ export async function SinaiWeather({ placeIds }: { placeIds?: string[] | null })
               <p className="mt-6 font-display text-6xl font-light leading-none tracking-tight">{forecast.now!.temp}°</p>
               <p className="mt-3 text-sm text-stone">
                 {now.label}
-                {todayRange && <> · {todayRange.high}° / {todayRange.low}°</>}
+                {todayRange && <>, {todayRange.high}° / {todayRange.low}°</>}
               </p>
               {nextDays.length > 0 && (
                 <ul className="mt-6 grid grid-cols-3 gap-2 border-t border-ink/10 pt-4 text-center">
@@ -138,28 +162,41 @@ export async function RetreatWeather({
   if (!days.length) return null
   const hasTypical = days.some((d) => d.source === 'typical')
   const allTypical = days.every((d) => d.source === 'typical')
+  const min = Math.min(...days.map((d) => d.low))
+  const span = Math.max(Math.max(...days.map((d) => d.high)) - min, 1)
 
   return (
     <section className="mt-16">
-      <h2 className="font-display text-4xl tracking-tight">Weather in {place.name}</h2>
+      <h2 className="font-display text-3xl tracking-tight sm:text-4xl">Weather in {place.name}</h2>
       {allTypical && (
         <p className="mt-3 max-w-xl text-stone">
           What these dates usually look like, from the last 10 years. The live forecast replaces it about a week before departure.
         </p>
       )}
-      <ul className="mt-8 flex gap-3 overflow-x-auto pb-2">
+      <ul className="mt-6 max-w-2xl overflow-hidden rounded-3xl bg-dune">
         {days.map((d) => {
           const { icon, label } = describeSymbol(d.symbol)
+          // Where this day sits between the trip's coolest night and warmest day.
+          const left = ((d.low - min) / span) * 100
+          const width = Math.max(((d.high - d.low) / span) * 100, 6)
           return (
-            <li key={d.date} className="min-w-28 flex-1 rounded-2xl bg-dune p-4 text-center">
-              <p className="text-sm text-stone">{dayLabel.format(asDate(d.date))}</p>
+            <li key={d.date} className="grid grid-cols-[4.75rem_2rem_1fr] items-center gap-3 border-t border-ink/10 px-4 py-3.5 first:border-t-0 sm:grid-cols-[7rem_2.5rem_1fr] sm:px-6">
+              <p className="text-[15px] leading-tight">
+                {weekdayOnly.format(asDate(d.date))}
+                <span className="block text-xs text-stone">{shortDate.format(asDate(d.date))}</span>
+              </p>
               {d.source === 'forecast' ? (
-                <p aria-label={label} className="mt-2 text-2xl">{icon}</p>
+                <span role="img" aria-label={label} className="text-center text-xl">{icon}</span>
               ) : (
-                <p className="mt-2 text-xs uppercase tracking-wide text-stone">Usually</p>
+                <span className="text-center text-[11px] leading-tight text-stone">Usually</span>
               )}
-              <p className="mt-2 font-display text-2xl">{d.high}°</p>
-              <p className="text-sm text-stone">{d.low}° at night</p>
+              <div className="flex items-center gap-3 text-[15px] tabular-nums">
+                <span className="w-8 text-right text-stone" aria-label={`Low ${d.low}°`}>{d.low}°</span>
+                <span className="relative h-1.5 flex-1 rounded-full bg-ink/10" aria-hidden="true">
+                  <span className="absolute inset-y-0 rounded-full bg-gradient-to-r from-[#8fb3c4] to-amber" style={{ left: `${left}%`, width: `${width}%` }} />
+                </span>
+                <span className="w-8 font-medium" aria-label={`High ${d.high}°`}>{d.high}°</span>
+              </div>
             </li>
           )
         })}

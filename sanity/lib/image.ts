@@ -19,3 +19,9 @@ export function ogImageUrl(image: SanityImage | null | undefined) {
   if (!image?.asset) return null
   return builder.image(image).width(1200).height(630).fit('crop').format('jpg').quality(70).url()
 }
+
+/** Always a JPEG (never WebP/AVIF), for images drawn on the server, e.g. share images. */
+export function jpgUrl(image: SanityImage | null | undefined, width: number, height: number) {
+  if (!image?.asset) return null
+  return builder.image(image).width(width).height(height).fit('crop').format('jpg').quality(82).url()
+}

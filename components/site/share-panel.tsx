@@ -1,22 +1,29 @@
 'use client'
 
-import QRCode from 'qrcode'
 import { useEffect, useState } from 'react'
-import { Check, Download, Link2, Share2 } from 'lucide-react'
+import { Check, Download, Link2, Loader2, Share2 } from 'lucide-react'
 import { track } from '@/lib/analytics'
 
-const PINE = '#26473d'
-const SAND = '#f6f3ed'
+type Format = 'story' | 'post'
+const FORMATS: { value: Format; label: string; hint: string }[] = [
+  { value: 'story', label: 'Story', hint: 'For WhatsApp status and Instagram stories' },
+  { value: 'post', label: 'Post', hint: 'For Instagram and Facebook posts' },
+]
 
-export function SharePanel({ url, title, subtitle }: { url: string; title: string; subtitle?: string }) {
-  const [qr, setQr] = useState<string | null>(null)
+/**
+ * Share box on the retreat page: send the link, or share/download a ready-made
+ * image with the photo, dates, stay, transport, weather, price and a QR code.
+ */
+export function SharePanel({ url, title, subtitle, imagePath }: { url: string; title: string; subtitle?: string; imagePath: string }) {
+  const [format, setFormat] = useState<Format>('story')
   const [copied, setCopied] = useState(false)
   const [canShare, setCanShare] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [loaded, setLoaded] = useState<Record<Format, boolean>>({ story: false, post: false })
+  const src = `${imagePath}?format=${format}`
+  const fileName = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${format}.png`
 
-  useEffect(() => {
-    setCanShare(typeof navigator !== 'undefined' && 'share' in navigator)
-    QRCode.toDataURL(url, { margin: 1, width: 360, color: { dark: PINE, light: SAND } }).then(setQr).catch(() => setQr(null))
-  }, [url])
+  useEffect(() => setCanShare(typeof navigator !== 'undefined' && 'share' in navigator), [])
 
   async function copy() {
     try {
@@ -27,104 +34,100 @@ export function SharePanel({ url, title, subtitle }: { url: string; title: strin
     } catch {}
   }
 
-  async function share() {
+  async function shareLink() {
     try {
       await navigator.share({ title, text: subtitle, url })
       track('share', { method: 'native', retreat: title })
     } catch {}
   }
 
-  /** Builds a 1080×1920 story image: title, dates, QR code and link. */
-  async function downloadStory() {
-    const canvas = document.createElement('canvas')
-    canvas.width = 1080
-    canvas.height = 1920
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-    await document.fonts?.ready
-    ctx.fillStyle = PINE
-    ctx.fillRect(0, 0, 1080, 1920)
-
-    ctx.fillStyle = '#d69c55'
-    ctx.font = '500 40px Figtree, sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText('Solo Retreats', 540, 250)
-
-    ctx.fillStyle = SAND
-    ctx.font = '400 104px Newsreader, Georgia, serif'
-    wrap(ctx, title, 540, 420, 900, 112)
-
-    if (subtitle) {
-      ctx.font = '400 42px Figtree, sans-serif'
-      ctx.fillStyle = 'rgba(246,243,237,.8)'
-      ctx.fillText(subtitle, 540, 760)
+  /** Phones: opens the share sheet with the image attached. Elsewhere: downloads it. */
+  async function shareImage(forceDownload = false) {
+    setBusy(true)
+    try {
+      const blob = await fetch(src).then((r) => {
+        if (!r.ok) throw new Error('Image failed')
+        return r.blob()
+      })
+      const file = new File([blob], fileName, { type: 'image/png' })
+      if (!forceDownload && navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], text: `${title}\n${url}` })
+          track('share', { method: 'image', format, retreat: title })
+        } catch {}
+        return
+      }
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      link.click()
+      setTimeout(() => URL.revokeObjectURL(link.href), 5000)
+      track('share_image_download', { format, retreat: title })
+    } catch {
+      window.open(src, '_blank')
+    } finally {
+      setBusy(false)
     }
-
-    const qrCanvas = document.createElement('canvas')
-    await QRCode.toCanvas(qrCanvas, url, { margin: 2, width: 640, color: { dark: PINE, light: SAND } })
-    roundRect(ctx, 200, 860, 680, 680, 40)
-    ctx.fillStyle = SAND
-    ctx.fill()
-    ctx.drawImage(qrCanvas, 220, 880, 640, 640)
-
-    ctx.fillStyle = SAND
-    ctx.font = '500 44px Figtree, sans-serif'
-    ctx.fillText('Scan to book', 540, 1650)
-    ctx.font = '400 32px Figtree, sans-serif'
-    ctx.fillStyle = 'rgba(246,243,237,.7)'
-    ctx.fillText(url.replace(/^https?:\/\//, ''), 540, 1710)
-
-    const link = document.createElement('a')
-    link.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-qr.png`
-    link.href = canvas.toDataURL('image/png')
-    link.click()
-    track('qr_download', { retreat: title })
   }
 
-  const button = 'inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/15 px-4 text-sm transition hover:bg-dune'
+  const button = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-ink/15 px-4 text-sm transition hover:bg-dune disabled:opacity-60'
 
   return (
-    <div className="grid items-center gap-6 rounded-3xl border border-ink/10 p-5 sm:grid-cols-[140px_1fr] sm:p-6">
-      <div className="mx-auto size-[140px] overflow-hidden rounded-2xl bg-dune">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {qr && <img src={qr} alt={`QR code that opens the ${title} page`} className="size-full" />}
+    <div className="rounded-3xl border border-ink/10 p-5 sm:p-6">
+      <p className="font-display text-2xl">Share this retreat</p>
+      <p className="mt-1 text-sm text-stone">Send the link, or post a ready-made image with all the details and a QR code.</p>
+
+      <div className="mt-5 flex gap-2" role="radiogroup" aria-label="Image size">
+        {FORMATS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            role="radio"
+            aria-checked={format === f.value}
+            title={f.hint}
+            onClick={() => setFormat(f.value)}
+            className={`min-h-9 rounded-full px-4 text-sm transition ${format === f.value ? 'bg-pine text-sand' : 'bg-dune hover:bg-dune-deep'}`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
-      <div>
-        <p className="font-display text-2xl">Share this retreat</p>
-        <p className="mt-1 text-sm text-stone">Send the link, or save the QR code as a story-sized image.</p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {canShare && <button type="button" onClick={share} className={button}><Share2 className="size-4" /> Share</button>}
-          <button type="button" onClick={copy} className={button}>
+
+      <button
+        type="button"
+        onClick={() => shareImage()}
+        className={`relative mx-auto mt-4 block overflow-hidden rounded-2xl bg-pine shadow-[0_12px_30px_-12px_rgba(36,51,45,.45)] ${format === 'story' ? 'w-[62%]' : 'w-[82%]'}`}
+        aria-label={`Share the ${format} image`}
+      >
+        <span className={`block w-full ${format === 'story' ? 'aspect-[9/16]' : 'aspect-[4/5]'}`} aria-hidden="true" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          key={src}
+          src={src}
+          alt={`Share image for ${title}`}
+          loading="lazy"
+          onLoad={() => setLoaded((l) => ({ ...l, [format]: true }))}
+          className={`absolute inset-0 size-full object-cover transition-opacity duration-500 ${loaded[format] ? 'opacity-100' : 'opacity-0'}`}
+        />
+        {!loaded[format] && <Loader2 className="absolute left-1/2 top-1/2 size-6 -translate-x-1/2 -translate-y-1/2 animate-spin text-sand/70" aria-hidden="true" />}
+      </button>
+      <p className="mt-3 text-center text-xs text-stone">{FORMATS.find((f) => f.value === format)?.hint}</p>
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button type="button" onClick={() => shareImage()} disabled={busy} className={`${button} col-span-2 border-pine bg-pine font-semibold text-sand hover:bg-pine-dark`}>
+          {busy ? <Loader2 className="size-4 animate-spin" /> : <Share2 className="size-4" />} {canShare ? 'Share image' : 'Download image'}
+        </button>
+        {canShare ? (
+          <>
+            <button type="button" onClick={shareLink} className={button}><Link2 className="size-4" /> Share link</button>
+            <button type="button" onClick={() => shareImage(true)} disabled={busy} className={button}><Download className="size-4" /> Save image</button>
+          </>
+        ) : (
+          <button type="button" onClick={copy} className={`${button} col-span-2`}>
             {copied ? <Check className="size-4" /> : <Link2 className="size-4" />} {copied ? 'Link copied' : 'Copy link'}
           </button>
-          <button type="button" onClick={downloadStory} className={button}><Download className="size-4" /> Download QR</button>
-        </div>
+        )}
       </div>
     </div>
   )
-}
-
-function wrap(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
-  const words = text.split(' ')
-  let line = ''
-  let offset = 0
-  for (const word of words) {
-    const test = line ? `${line} ${word}` : word
-    if (ctx.measureText(test).width > maxWidth && line) {
-      ctx.fillText(line, x, y + offset)
-      line = word
-      offset += lineHeight
-    } else line = test
-  }
-  ctx.fillText(line, x, y + offset)
-}
-
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.arcTo(x + w, y, x + w, y + h, r)
-  ctx.arcTo(x + w, y + h, x, y + h, r)
-  ctx.arcTo(x, y + h, x, y, r)
-  ctx.arcTo(x, y, x + w, y, r)
-  ctx.closePath()
 }
