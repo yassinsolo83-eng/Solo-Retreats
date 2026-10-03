@@ -4,6 +4,7 @@ import { JsonLd } from '@/components/site/json-ld'
 import { EmptyState } from '@/components/site/page-header'
 import { BRAND, siteUrl } from '@/lib/site'
 import { HeroSlideshow } from '@/components/site/hero-slideshow'
+import { HomeIntro } from '@/components/site/home-intro'
 import { SanityImage } from '@/components/site/sanity-image'
 import { toHeroSlides } from '@/lib/hero'
 import { reviewerName, Stars } from '@/components/site/stars'
@@ -48,6 +49,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <HomeIntro />
       <JsonLd data={organization} />
       <section className="relative -mt-20 flex min-h-[88svh] items-end overflow-hidden bg-pine text-sand">
         <HeroSlideshow slides={slides} seconds={settings?.heroSeconds ?? 7} />
