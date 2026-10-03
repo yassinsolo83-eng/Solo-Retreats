@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
@@ -172,8 +171,9 @@
   --color-stone: #5f6b64;
   --color-amber: #d69c55;
   --color-clay: #8f5526;
-  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
-  --font-body: 'Figtree', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* The font files are loaded in app/layout.tsx with next/font, which serves them from this site. */
+  --font-display: var(--font-newsreader), Georgia, 'Times New Roman', serif;
+  --font-body: var(--font-figtree), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 .font-serif,
@@ -187,7 +187,7 @@
 
 .font-arabic,
 .font-arabic .font-display {
-  font-family: 'IBM Plex Sans Arabic', var(--font-body);
+  font-family: var(--font-plex-arabic), var(--font-body);
 }
 
 :focus-visible {
