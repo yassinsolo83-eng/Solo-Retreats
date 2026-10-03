@@ -99,6 +99,13 @@ export function HomeIntro() {
                     <g transform="translate(0.9 -8.2)">
                       <rect className="hi-leg hi-leg-front" x="-0.95" y="0" width="1.9" height="8.6" rx="0.95" fill="#132721" />
                     </g>
+                    {/* Arms rest inside the body's outline, then open up and out on the jump. */}
+                    <g transform="translate(-1.3 -15.2)">
+                      <rect className="hi-arm hi-arm-left" x="-0.85" y="0" width="1.7" height="7.4" rx="0.85" fill="#132721" />
+                    </g>
+                    <g transform="translate(1.3 -15.2)">
+                      <rect className="hi-arm hi-arm-right" x="-0.85" y="0" width="1.7" height="7.4" rx="0.85" fill="#132721" />
+                    </g>
                     <rect x="-2.3" y="-16.6" width="4.6" height="9.6" rx="2.2" fill="#132721" />
                     <circle cx="0" cy="-19.6" r="2.7" fill="#132721" />
                   </g>
