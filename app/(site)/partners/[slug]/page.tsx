@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 import { isUrl } from '@/lib/site'
 import { notFound } from 'next/navigation'
-import { RetreatCard } from '@/components/site/retreat-card'
 import { RichText } from '@/components/site/rich-text'
 import { PhotoMosaic } from '@/components/site/photos'
 import type { PartnerDetail } from '@/lib/types'
@@ -93,14 +92,6 @@ export default async function PartnerPage({ params }: Props) {
 
       <p className="mt-14 text-sm text-stone">{partner.name} is an independent partner and is not owned by Solo Retreats.</p>
 
-      {!!partner.retreats?.length && (
-        <section className="mt-20 border-t border-ink/10 pt-14">
-          <h2 className="mb-10 font-display text-4xl tracking-tight">Upcoming retreats {isCamp ? 'staying here' : 'with this company'}</h2>
-          <div className="grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
-            {partner.retreats.map((r) => <RetreatCard key={r._id} retreat={r} />)}
-          </div>
-        </section>
-      )}
     </article>
   )
 }
