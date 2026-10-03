@@ -1,0 +1,114 @@
+'use client'
+
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+
+// useLayoutEffect warns on the server; this runs it only in the browser.
+const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
+
+// The logo's "o" sun, in the wordmark's own units (see components/site/logo.tsx).
+const WORDMARK = { width: 588.4, height: 78, top: -75.5, sunX: 84.05, sunY: -20.79, sunR: 24.3 }
+// The icon's sun, in the icon's 0–100 units.
+const ICON_SUN = { x: 58, y: 51, r: 21 }
+
+/**
+ * Plays every time the home page opens (about 3.6 seconds): the sun rises, a lone traveler
+ * walks across the dune, crouches and jumps, and the whole icon flies up and lands on the
+ * sun in the "Solo" logo. A tap or a key press skips it. Hidden entirely for visitors who
+ * turned off motion on their device. Works as plain CSS too, so it never gets stuck.
+ */
+export function HomeIntro() {
+  const [done, setDone] = useState(false)
+  const [skipping, setSkipping] = useState(false)
+  const iconRef = useRef<HTMLDivElement>(null)
+
+  // Aim the final flight at the sun in the header logo.
+  useBrowserLayoutEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDone(true)
+      return
+    }
+    const icon = iconRef.current
+    const logo = document.querySelector<SVGElement>('header nav a[href="/"] svg')
+    if (!icon || !logo) return
+    const box = icon.getBoundingClientRect()
+    const mark = logo.getBoundingClientRect()
+    if (!box.width || !mark.width) return
+    const size = box.width
+    const fromX = box.left + (ICON_SUN.x / 100) * size
+    const fromY = box.top + (ICON_SUN.y / 100) * size
+    const toX = mark.left + (WORDMARK.sunX / WORDMARK.width) * mark.width
+    const toY = mark.top + ((WORDMARK.sunY - WORDMARK.top) / WORDMARK.height) * mark.height
+    const scale = ((WORDMARK.sunR / WORDMARK.height) * mark.height) / ((ICON_SUN.r / 100) * size)
+    icon.style.setProperty('--fly-x', `${toX - fromX}px`)
+    icon.style.setProperty('--fly-y', `${toY - fromY}px`)
+    icon.style.setProperty('--fly-scale', String(scale))
+  }, [])
+
+  // Keep the page still while it plays; any tap, scroll or key skips to the end.
+  useEffect(() => {
+    if (done) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const skip = () => setSkipping(true)
+    window.addEventListener('keydown', skip)
+    window.addEventListener('wheel', skip, { passive: true })
+    const timer = window.setTimeout(() => setDone(true), 3800)
+    return () => {
+      document.body.style.overflow = previous
+      window.removeEventListener('keydown', skip)
+      window.removeEventListener('wheel', skip)
+      window.clearTimeout(timer)
+    }
+  }, [done])
+
+  useEffect(() => {
+    if (!skipping) return
+    const timer = window.setTimeout(() => setDone(true), 350)
+    return () => window.clearTimeout(timer)
+  }, [skipping])
+
+  if (done) return null
+
+  return (
+    <div
+      className={`home-intro${skipping ? ' home-intro-skip' : ''}`}
+      onPointerDown={() => setSkipping(true)}
+      onTouchMove={() => setSkipping(true)}
+      aria-hidden="true"
+    >
+      <div ref={iconRef} className="home-intro-icon">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="home-intro-circle">
+              <circle cx="50" cy="50" r="48" />
+            </clipPath>
+          </defs>
+          <g clipPath="url(#home-intro-circle)">
+            <rect width="100" height="100" fill="#26473d" />
+            <g className="hi-sun">
+              <circle cx="58" cy="51" r="21" fill="#d69c55" />
+            </g>
+            {/* The traveler: feet at the group's origin, so moving the group moves them along the dune. */}
+            <g className="hi-walk">
+              <g className="hi-jump">
+                <g className="hi-crouch">
+                  <g className="hi-bob">
+                    <g transform="translate(-0.9 -8.2)">
+                      <rect className="hi-leg hi-leg-back" x="-0.95" y="0" width="1.9" height="8.6" rx="0.95" fill="#132721" />
+                    </g>
+                    <g transform="translate(0.9 -8.2)">
+                      <rect className="hi-leg hi-leg-front" x="-0.95" y="0" width="1.9" height="8.6" rx="0.95" fill="#132721" />
+                    </g>
+                    <rect x="-2.3" y="-16.6" width="4.6" height="9.6" rx="2.2" fill="#132721" />
+                    <circle cx="0" cy="-19.6" r="2.7" fill="#132721" />
+                  </g>
+                </g>
+              </g>
+            </g>
+            <path d="M0 80 C 22 71, 40 65.5, 58 66.5 S 86 73, 100 69 L100 100 L0 100 Z" fill="#e6d7bd" />
+          </g>
+        </svg>
+      </div>
+    </div>
+  )
+}
