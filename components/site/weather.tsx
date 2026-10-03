@@ -1,4 +1,5 @@
 import { upcomingDepartures } from '@/lib/dates'
+import { TextLink } from './text-link'
 import type { Departure, RetreatCard } from '@/lib/types'
 import {
   DEFAULT_HOME_PLACES,
@@ -17,14 +18,13 @@ const shortDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'sho
 const asDate = (value: string) => new Date(`${value}T00:00:00Z`)
 
 function Credit({ typical = false, className = '' }: { typical?: boolean; className?: string }) {
-  const link = 'underline underline-offset-2'
   return (
     <p className={`text-xs ${className}`}>
-      Forecast by <a href="https://www.met.no/en" target="_blank" rel="noreferrer" className={link}>MET Norway</a>
+      Forecast by <TextLink href="https://www.met.no/en" arrow={false}>MET Norway</TextLink>
       {typical && (
         <>
           . Typical values from the last {10} years of{' '}
-          <a href="https://power.larc.nasa.gov" target="_blank" rel="noreferrer" className={link}>NASA POWER</a> data
+          <TextLink href="https://power.larc.nasa.gov" arrow={false}>NASA POWER</TextLink> data
         </>
       )}
       . Updates by itself.

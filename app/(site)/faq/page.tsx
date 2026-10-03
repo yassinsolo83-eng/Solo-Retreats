@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { TextLink } from '@/components/site/text-link'
 import { Plus } from 'lucide-react'
 import { EmptyState, PageHeader } from '@/components/site/page-header'
 import type { Faq, SiteSettings } from '@/lib/types'
@@ -37,7 +38,7 @@ export default async function FaqPage() {
         )}
         {wa && (
           <p className="mt-12 text-lg text-stone">
-            Didn't find your answer? <a href={wa} target="_blank" rel="noreferrer" className="text-clay underline underline-offset-4">Ask us on WhatsApp</a>
+            Didn't find your answer? <TextLink href={wa}>Ask us on WhatsApp</TextLink>
           </p>
         )}
       </div>

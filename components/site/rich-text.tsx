@@ -1,4 +1,5 @@
 import { PortableText, type PortableTextBlock, type PortableTextComponents } from 'next-sanity'
+import { TextLink } from './text-link'
 
 const components: PortableTextComponents = {
   block: {
@@ -11,7 +12,7 @@ const components: PortableTextComponents = {
   },
   marks: {
     link: ({ children, value }) => (
-      <a href={value?.href} className="text-clay underline underline-offset-4" target="_blank" rel="noreferrer">{children}</a>
+      value?.href ? <TextLink href={value.href}>{children}</TextLink> : <>{children}</>
     ),
   },
 }

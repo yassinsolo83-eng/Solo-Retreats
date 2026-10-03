@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { TextLink } from './text-link'
 import { useState } from 'react'
 import { formatDeparture } from '@/lib/dates'
 import { track } from '@/lib/analytics'
@@ -113,7 +113,7 @@ export function BookingForm({ retreatId, retreatTitle, departures, kind, whatsap
         {kind === 'waitlist' ? "We'll message you if a spot opens up or when we run this trip again." : "WhatsApp opens with your details filled in. We'll reply with the price and next steps."}
       </p>
       <p className="text-center text-xs text-stone">
-        By sending a request you agree to our <Link href="/terms" className="underline underline-offset-2 hover:text-ink">booking terms</Link> and <Link href="/privacy" className="underline underline-offset-2 hover:text-ink">privacy policy</Link>.
+        By sending a request you agree to our <TextLink href="/terms" arrow={false}>booking terms</TextLink> and <TextLink href="/privacy" arrow={false}>privacy policy</TextLink>.
       </p>
     </form>
   )

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { TextLink } from '@/components/site/text-link'
 import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 import { notFound } from 'next/navigation'
@@ -91,9 +92,9 @@ export default async function RetreatPage({ params }: Props) {
           <>
             {[retreat.meetingPoint, retreat.meetingTime].filter(Boolean).join(', ')}
             {retreat.meetingPointMap && (
-              <a href={retreat.meetingPointMap} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-1 text-base text-clay underline underline-offset-4">
-                <MapPin aria-hidden="true" className="size-4" /> Open in Google Maps
-              </a>
+              <span className="mt-1 block text-base">
+                <TextLink href={retreat.meetingPointMap} icon={<MapPin aria-hidden="true" />}>Open in Google Maps</TextLink>
+              </span>
             )}
           </>,
         ]
@@ -232,7 +233,7 @@ export default async function RetreatPage({ params }: Props) {
 }
 
 function PartnerLink({ partner }: { partner: PartnerSummary }) {
-  return <Link href={`/partners/${partner.slug}`} className="underline decoration-amber decoration-2 underline-offset-4 hover:text-clay">{partner.name}</Link>
+  return <TextLink href={`/partners/${partner.slug}`}>{partner.name}</TextLink>
 }
 
 function List({ title, items, mark, columns }: { title: string; items?: string[] | null; mark: string; columns?: boolean }) {

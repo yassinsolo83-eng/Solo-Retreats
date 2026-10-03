@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/site/page-header'
 import { BRAND, siteUrl } from '@/lib/site'
 import { HeroSlideshow } from '@/components/site/hero-slideshow'
 import { HomeIntro } from '@/components/site/home-intro'
+import { TextLink } from '@/components/site/text-link'
 import { SanityImage } from '@/components/site/sanity-image'
 import { toHeroSlides } from '@/lib/hero'
 import { reviewerName, Stars } from '@/components/site/stars'
@@ -76,14 +77,14 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-10 lg:py-28">
         <div className="mb-12 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <h2 className="font-display text-5xl leading-none tracking-tight sm:text-6xl">Coming up</h2>
-          {retreats.length > 3 && <Link href="/retreats" className="text-clay underline underline-offset-4">All {retreats.length} retreats</Link>}
+          {retreats.length > 3 && <TextLink href="/retreats">All {retreats.length} retreats</TextLink>}
         </div>
         {retreats.length ? (
           <div className="grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
             {retreats.slice(0, 3).map((r) => <RetreatCard key={r._id} retreat={r} weather={weather.get(r._id)} />)}
           </div>
         ) : (
-          <EmptyState title="New trips are on the way" text="The next retreats are being planned right now. Follow us to hear about them first." action={settings?.instagram ? <a href={settings.instagram} className="text-clay underline underline-offset-4" target="_blank" rel="noreferrer">Follow on Instagram</a> : null} />
+          <EmptyState title="New trips are on the way" text="The next retreats are being planned right now. Follow us to hear about them first." action={settings?.instagram ? <TextLink href={settings.instagram}>Follow on Instagram</TextLink> : null} />
         )}
       </section>
 
@@ -125,7 +126,7 @@ export default async function HomePage() {
             <div>
               <h2 className="font-display text-5xl leading-none tracking-tight sm:text-6xl">{settings.aboutTitle || `Hi, I'm ${settings.organizerName}`}</h2>
               <p className="mt-6 max-w-lg text-lg leading-relaxed text-stone">I plan every retreat myself and I'm on every trip, so there's always someone who knows the plan and knows your name.</p>
-              <Link href="/about" className="mt-8 inline-block text-clay underline underline-offset-4">More about me</Link>
+              <p className="mt-8"><TextLink href="/about">More about me</TextLink></p>
             </div>
           </div>
         </section>

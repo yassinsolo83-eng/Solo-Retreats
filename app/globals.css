@@ -398,3 +398,38 @@
 @media (prefers-reduced-motion: reduce) {
   .home-intro { display: none; }
 }
+
+/* ---------- Links inside content: color, underline and an arrow, so they read as clickable ---------- */
+.text-link {
+  display: inline;
+  color: var(--color-clay);
+  font-weight: 500;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.text-link > svg:first-child:not(.text-link-arrow) {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-inline-end: 0.3em;
+  vertical-align: -0.14em;
+}
+.text-link-text {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.25em;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+  transition: text-decoration-color 0.2s ease;
+}
+.text-link-arrow {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-inline-start: 0.2em;
+  vertical-align: -0.12em;
+  transition: transform 0.2s ease;
+}
+.text-link:hover .text-link-text,
+.text-link:focus-visible .text-link-text { text-decoration-color: currentColor; }
+a[href^="/"].text-link:hover .text-link-arrow { transform: translateX(3px); }
+a[target="_blank"].text-link:hover .text-link-arrow { transform: translate(2px, -2px); }
