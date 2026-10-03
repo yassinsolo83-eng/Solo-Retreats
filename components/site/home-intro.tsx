@@ -5,24 +5,30 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 // useLayoutEffect warns on the server; this runs it only in the browser.
 const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
+// True once the intro has played in this visit. It lives in the page's memory, so moving
+// around the site keeps it, and a refresh or a new visit starts it fresh.
+let playedThisVisit = false
+
 // The logo's "o" sun, in the wordmark's own units (see components/site/logo.tsx).
 const WORDMARK = { width: 588.4, height: 78, top: -75.5, sunX: 84.05, sunY: -20.79, sunR: 24.3 }
 // The icon's sun, in the icon's 0–100 units.
 const ICON_SUN = { x: 58, y: 51, r: 21 }
 
 /**
- * Plays every time the home page opens (about 3.6 seconds): the sun rises, a lone traveler
+ * Plays the first time the home page is seen in a visit, and on every refresh (about 3.6 seconds): the sun rises, a lone traveler
  * walks across the dune, crouches and jumps, and the whole icon flies up and lands on the
  * sun in the "Solo" logo. A tap or a key press skips it. Hidden entirely for visitors who
  * turned off motion on their device. Works as plain CSS too, so it never gets stuck.
  */
 export function HomeIntro() {
-  const [done, setDone] = useState(false)
+  const [done, setDone] = useState(() => playedThisVisit)
   const [skipping, setSkipping] = useState(false)
   const iconRef = useRef<HTMLDivElement>(null)
 
   // Aim the final flight at the sun in the header logo.
   useBrowserLayoutEffect(() => {
+    if (playedThisVisit) return
+    playedThisVisit = true
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setDone(true)
       return
