@@ -84,6 +84,8 @@ export type SiteSettings = {
   heroTitle?: string | null
   heroText?: string | null
   heroImage?: SanityImage | null
+  heroSlides?: HeroSlideData[] | null
+  heroSeconds?: number | null
   highlights?: { _key: string; title: string; text?: string | null }[] | null
   organizerName?: string | null
   organizerPhoto?: SanityImage | null
@@ -94,6 +96,10 @@ export type SiteSettings = {
   weatherPlaces?: string[] | null
   shareImage?: SanityImage | null
 }
+
+export type HeroSlideData =
+  | ({ _key: string; _type: 'heroPhoto' } & SanityImage)
+  | { _key: string; _type: 'heroVideo'; source?: string | null; poster?: SanityImage | null }
 
 export type GalleryItem = { _id: string; caption?: string | null; category?: string | null; image: SanityImage; retreat?: string | null }
 export type Faq = { _id: string; question: string; answer: string }

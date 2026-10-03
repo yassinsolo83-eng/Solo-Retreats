@@ -30,6 +30,12 @@ const retreatCard = `
 export const settingsQuery = defineQuery(`*[_type == "siteSettings"][0]{
   whatsappNumber, email, instagram, facebook, tiktok,
   heroTitle, heroText, heroImage${image}, highlights[]{ _key, title, text },
+  heroSeconds,
+  heroSlides[]{
+    _key, _type,
+    _type == "heroPhoto" => { asset, hotspot, crop, alt, "lqip": asset->metadata.lqip },
+    _type == "heroVideo" => { source, poster{ asset, hotspot, crop, alt, "lqip": asset->metadata.lqip } }
+  },
   organizerName, organizerPhoto${image}, aboutTitle, aboutText,
   seoDescription, shareImage${image},
   showSinaiWeather, weatherPlaces

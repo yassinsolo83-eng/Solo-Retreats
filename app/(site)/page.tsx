@@ -3,7 +3,9 @@ import { RetreatCard } from '@/components/site/retreat-card'
 import { JsonLd } from '@/components/site/json-ld'
 import { EmptyState } from '@/components/site/page-header'
 import { BRAND, siteUrl } from '@/lib/site'
+import { HeroSlideshow } from '@/components/site/hero-slideshow'
 import { SanityImage } from '@/components/site/sanity-image'
+import { toHeroSlides } from '@/lib/hero'
 import { reviewerName, Stars } from '@/components/site/stars'
 import { SinaiWeather, weatherForCards } from '@/components/site/weather'
 import type { RetreatCard as RetreatCardType, SiteSettings, Testimonial } from '@/lib/types'
@@ -26,7 +28,9 @@ export default async function HomePage() {
     sanityFetch<Testimonial[]>(testimonialsQuery, {}, []),
   ])
   const weather = await weatherForCards(retreats.slice(0, 3))
-  const heroImage = settings?.heroImage ?? retreats[0]?.coverImage
+  const slides = toHeroSlides(settings?.heroSlides)
+  const fallback = settings?.heroImage?.asset ? settings.heroImage : retreats[0]?.coverImage
+  if (!slides.length && fallback?.asset) slides.push({ key: 'fallback', kind: 'image', image: fallback })
   const headlineWords = (settings?.heroTitle || 'Small-group retreats to the quiet corners of Egypt').split(/\s+/)
   const organization = {
     '@context': 'https://schema.org',
@@ -46,7 +50,7 @@ export default async function HomePage() {
     <>
       <JsonLd data={organization} />
       <section className="relative -mt-20 flex min-h-[88svh] items-end overflow-hidden bg-pine text-sand">
-        <SanityImage image={heroImage} width={2000} height={1300} priority sizes="100vw" className="hero-breathe absolute inset-0 size-full" alt="" />
+        <HeroSlideshow slides={slides} seconds={settings?.heroSeconds ?? 7} />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,32,.35)_0%,rgba(20,38,32,.15)_35%,rgba(20,38,32,.85)_100%)]" />
         <div className="relative mx-auto w-full max-w-7xl px-5 pb-14 pt-32 lg:px-10 lg:pb-20">
           <h1 className="max-w-5xl font-display text-[clamp(2.9rem,8.5vw,7.5rem)] font-light leading-[0.95] tracking-[-0.03em]">

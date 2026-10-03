@@ -255,3 +255,35 @@
   .sun-glow { opacity: 0.45 !important; }
   .hero-breathe, .word-rise, .fade-up { animation: none !important; }
 }
+
+/* ---------- Home hero slideshow ---------- */
+
+/* Each photo slowly zooms and drifts while it is on screen. Four directions, used in turn. */
+@keyframes kb-a { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.16) translate(-2.5%, -1.5%); } }
+@keyframes kb-b { from { transform: scale(1.16) translate(2%, 1%); } to { transform: scale(1.03) translate(0, 0); } }
+@keyframes kb-c { from { transform: scale(1.03) translate(1.5%, -1%); } to { transform: scale(1.17) translate(-1%, 2%); } }
+@keyframes kb-d { from { transform: scale(1.15) translate(-2%, 1.5%); } to { transform: scale(1.02) translate(1%, -0.5%); } }
+.kb-a, .kb-b, .kb-c, .kb-d {
+  animation: var(--kb-name) var(--kb-duration, 10s) linear both;
+  will-change: transform;
+}
+.kb-a { --kb-name: kb-a; transform-origin: 40% 50%; }
+.kb-b { --kb-name: kb-b; transform-origin: 60% 45%; }
+.kb-c { --kb-name: kb-c; transform-origin: 50% 60%; }
+.kb-d { --kb-name: kb-d; transform-origin: 45% 40%; }
+
+/* A single photo breathes in and out, clearly enough to notice. */
+@keyframes kb-breathe { from { transform: scale(1.02); } to { transform: scale(1.14) translate(-1.5%, -1%); } }
+.kb-breathe {
+  animation: kb-breathe 14s ease-in-out infinite alternate;
+  transform-origin: 50% 55%;
+  will-change: transform;
+}
+
+/* Progress bar under the active slide. */
+@keyframes hero-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.hero-progress { animation: hero-progress var(--kb-duration, 7s) linear both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kb-a, .kb-b, .kb-c, .kb-d, .kb-breathe, .hero-progress { animation: none !important; }
+}
