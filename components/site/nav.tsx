@@ -22,17 +22,29 @@ export function Nav() {
   useIsomorphicLayoutEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 40)
-      // The logo's sun sets over the first ~screen of scrolling, then the moon rises over the next.
-      // Both reverse on the way up.
-      const progress = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * 1.8)))
-      headerRef.current?.style.setProperty('--sun', progress.toFixed(3))
+      // The logo's "o" follows the whole page like a day: the sun sets slowly over the first 80%
+      // of the page, and the moon rises over the last 15%, as you reach the end. Reverses on the way up.
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+      const page = scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0
+      // CSS reads --sun as: 0–0.5 sun setting, 0.55–1 moon rising (see .sun-sink / .moon-rise).
+      const sun =
+        page <= 0.8 ? (page / 0.8) * 0.5
+        : page <= 0.85 ? 0.5 + ((page - 0.8) / 0.05) * 0.05
+        : 0.55 + ((page - 0.85) / 0.15) * 0.45
+      headerRef.current?.style.setProperty('--sun', Math.min(1, sun).toFixed(3))
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
     window.addEventListener('load', onScroll)
+    // Pages grow as photos load or sections open, so keep the timing in step with the real length.
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(onScroll)
+    observer?.observe(document.body)
     return () => {
       window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
       window.removeEventListener('load', onScroll)
+      observer?.disconnect()
     }
   }, [])
 
