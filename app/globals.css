@@ -210,13 +210,23 @@
 
 /* ---------- Motion ---------- */
 
-/* Logo: the sun sinks behind the horizon as you scroll (driven by --sun on the header). */
+/* Logo: as you scroll (--sun on the header goes 0 → 1), the sun sinks fully behind the horizon
+   in the first half, then a full moon rises in its place in the second half. */
 .sun-sink {
-  transform: translateY(calc(var(--sun, 0) * 22px));
+  transform: translateY(calc(clamp(0, var(--sun, 0) * 2, 1) * 31px));
   transition: transform 120ms linear;
 }
+.moon-rise {
+  transform: translateY(calc((1 - clamp(0, (var(--sun, 0) - 0.55) / 0.45, 1)) * 31px));
+  transition: transform 120ms linear;
+}
+/* The reflection glows gold at sunset, then turns silver under the moon. */
 .sun-glow {
-  opacity: calc(0.45 + var(--sun, 0) * 0.3);
+  opacity: calc((0.45 + clamp(0, var(--sun, 0) * 2, 1) * 0.3) * (1 - clamp(0, (var(--sun, 0) - 0.5) / 0.2, 1)));
+  transition: opacity 120ms linear;
+}
+.moon-glow {
+  opacity: calc(clamp(0, (var(--sun, 0) - 0.55) / 0.45, 1) * 0.6);
   transition: opacity 120ms linear;
 }
 
@@ -253,6 +263,7 @@
 @media (prefers-reduced-motion: reduce) {
   .sun-sink { transform: none !important; }
   .sun-glow { opacity: 0.45 !important; }
+  .moon-rise, .moon-glow { opacity: 0 !important; }
   .hero-breathe, .word-rise, .fade-up { animation: none !important; }
 }
 
