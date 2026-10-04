@@ -9,8 +9,10 @@ const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLa
 // around the site keeps it, and a refresh or a new visit starts it fresh.
 let playedThisVisit = false
 
-// The logo's "o" sun, in the wordmark's own units (see components/site/logo.tsx).
-const WORDMARK = { width: 588.4, height: 78, top: -75.5, sunX: 84.05, sunY: -20.79, sunR: 24.3 }
+// The logo's "o" sun, in the wordmark's own units (see SUN in components/site/logo.tsx).
+// The arc runs between x 60.23 and 107.87 on the horizon (y -20.79) with radius 24.3,
+// so the circle's center sits about 4.8 units above the horizon.
+const WORDMARK = { left: 0, top: -75.5, width: 588.4, height: 78, sunX: 84.05, sunY: -25.596, sunR: 24.3 }
 // The icon's sun, in the icon's 0–100 units.
 const ICON_SUN = { x: 58, y: 51, r: 21 }
 
@@ -25,7 +27,9 @@ export function HomeIntro() {
   const [skipping, setSkipping] = useState(false)
   const iconRef = useRef<HTMLDivElement>(null)
 
-  // Aim the final flight at the sun in the header logo.
+  // Aim the final flight at the sun in the header logo. Measured from layout sizes (not the
+  // on-screen box, which is still scaled by the opening animation), and measured again just
+  // before take-off in case the header moved.
   useBrowserLayoutEffect(() => {
     if (playedThisVisit) return
     playedThisVisit = true
@@ -33,22 +37,32 @@ export function HomeIntro() {
       setDone(true)
       return
     }
+    aim()
+    const timer = window.setTimeout(aim, 2450)
+    return () => window.clearTimeout(timer)
+  }, [])
+
+  function aim() {
     const icon = iconRef.current
-    const logo = document.querySelector<SVGElement>('header nav a[href="/"] svg')
+    const logo = document.querySelector<SVGSVGElement>('header nav a[href="/"] svg')
     if (!icon || !logo) return
-    const box = icon.getBoundingClientRect()
+    const size = icon.offsetWidth
     const mark = logo.getBoundingClientRect()
-    if (!box.width || !mark.width) return
-    const size = box.width
-    const fromX = box.left + (ICON_SUN.x / 100) * size
-    const fromY = box.top + (ICON_SUN.y / 100) * size
-    const toX = mark.left + (WORDMARK.sunX / WORDMARK.width) * mark.width
-    const toY = mark.top + ((WORDMARK.sunY - WORDMARK.top) / WORDMARK.height) * mark.height
-    const scale = ((WORDMARK.sunR / WORDMARK.height) * mark.height) / ((ICON_SUN.r / 100) * size)
+    if (!size || !mark.width) return
+    // Where the icon's sun is with no animation applied (the icon is centered in the screen).
+    const fromX = icon.offsetLeft + (ICON_SUN.x / 100) * size
+    const fromY = icon.offsetTop + (ICON_SUN.y / 100) * size
+    // The drawing keeps its proportions inside the logo's box (centered if the box is off by a pixel).
+    const unit = Math.min(mark.width / WORDMARK.width, mark.height / WORDMARK.height)
+    const offsetX = (mark.width - WORDMARK.width * unit) / 2
+    const offsetY = (mark.height - WORDMARK.height * unit) / 2
+    const toX = mark.left + offsetX + (WORDMARK.sunX - WORDMARK.left) * unit
+    const toY = mark.top + offsetY + (WORDMARK.sunY - WORDMARK.top) * unit
+    const scale = (WORDMARK.sunR * unit) / ((ICON_SUN.r / 100) * size)
     icon.style.setProperty('--fly-x', `${toX - fromX}px`)
     icon.style.setProperty('--fly-y', `${toY - fromY}px`)
     icon.style.setProperty('--fly-scale', String(scale))
-  }, [])
+  }
 
   // Keep the page still while it plays; any tap, scroll or key skips to the end.
   useEffect(() => {
@@ -88,13 +102,20 @@ export function HomeIntro() {
             <clipPath id="home-intro-circle">
               <circle cx="50" cy="50" r="48" />
             </clipPath>
+            {/* On landing, the sun is cut at the same horizon as the logo's "o" (55.15 = 51 + 0.198 × 21). */}
+            <clipPath id="home-intro-horizon">
+              <rect className="hi-horizon" x="0" y="-100" width="100" height="155.15" />
+            </clipPath>
           </defs>
           <g clipPath="url(#home-intro-circle)">
-            <rect width="100" height="100" fill="#26473d" />
-            <g className="hi-sun">
-              <circle cx="58" cy="51" r="21" fill="#d69c55" />
+            <rect className="hi-fade" width="100" height="100" fill="#26473d" />
+            <g clipPath="url(#home-intro-horizon)">
+              <g className="hi-sun">
+                <circle cx="58" cy="51" r="21" fill="#d69c55" />
+              </g>
             </g>
             {/* The traveler: feet at the group's origin, so moving the group moves them along the dune. */}
+            <g className="hi-fade">
             <g className="hi-walk">
               <g className="hi-jump">
                 <g className="hi-crouch">
@@ -118,7 +139,8 @@ export function HomeIntro() {
                 </g>
               </g>
             </g>
-            <path d="M0 80 C 22 71, 40 65.5, 58 66.5 S 86 73, 100 69 L100 100 L0 100 Z" fill="#e6d7bd" />
+            </g>
+            <path className="hi-fade" d="M0 80 C 22 71, 40 65.5, 58 66.5 S 86 73, 100 69 L100 100 L0 100 Z" fill="#e6d7bd" />
           </g>
         </svg>
       </div>
