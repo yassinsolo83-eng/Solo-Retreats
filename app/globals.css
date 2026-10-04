@@ -395,6 +395,17 @@
   to { transform: translateY(-17px); }
 }
 
+/* While it flies, everything but the sun melts away, and the sun settles onto the logo's horizon,
+   so what lands is exactly the logo's "o". */
+.hi-fade { animation: hi-fade 0.5s ease-in 2.85s forwards; }
+@keyframes hi-fade {
+  to { opacity: 0; }
+}
+.hi-horizon { transform: translateY(45px); animation: hi-horizon 0.5s ease-in-out 2.85s forwards; }
+@keyframes hi-horizon {
+  to { transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .home-intro { display: none; }
 }
