@@ -6,8 +6,10 @@ export const REFLECTION = "M106.06 -15.29A24.30 24.30 0 0 1 62.04 -15.29Z"
 
 /**
  * "Solo Retreats" wordmark. Letters use the current text color; the "o" is a setting sun.
- * With `setting`, the sun sinks below the horizon as the page scrolls. The nav drives it
- * through the --sun CSS variable (0 = up, 1 = set). `clipId` must be unique on the page.
+ * With `setting`, the "o" tells a day as the page scrolls: the sun sinks below the horizon,
+ * then a full moon rises in its place (and sets again, with the sun coming back, on the way up).
+ * The nav drives it through the --sun CSS variable (0 = sun up, 1 = moon up).
+ * `clipId` must be unique on the page.
  */
 export function Wordmark({ className = '', setting = false, clipId }: { className?: string; setting?: boolean; clipId?: string }) {
   const animated = setting && clipId
@@ -21,11 +23,19 @@ export function Wordmark({ className = '', setting = false, clipId }: { classNam
               {/* Everything above the horizon line */}
               <rect x="55" y="-56" width="58" height="35.21" />
             </clipPath>
+            {/* Moonlight: silver, a little darker on the right like a soft shadow. */}
+            <linearGradient id={`${clipId}-moon`} x1="0" y1="0" x2="1" y2="0.25">
+              <stop offset="0" stopColor="#b4bfc6" />
+              <stop offset="0.55" stopColor="#97a5ae" />
+              <stop offset="1" stopColor="#6f808a" />
+            </linearGradient>
           </defs>
           <g clipPath={`url(#${clipId})`}>
             <path fill="#d69c55" d={SUN} className="sun-sink" />
+            <path fill={`url(#${clipId}-moon)`} d={SUN} className="moon-rise" />
           </g>
           <path fill="#d69c55" d={REFLECTION} className="sun-glow" />
+          <path fill="#8d9ba4" d={REFLECTION} className="moon-glow" />
         </>
       ) : (
         <>
