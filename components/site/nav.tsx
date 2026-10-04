@@ -22,8 +22,9 @@ export function Nav() {
   useIsomorphicLayoutEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 40)
-      // Sun in the logo sets over the first ~screen of scrolling and rises again on the way up.
-      const progress = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * 0.9)))
+      // The logo's sun sets over the first ~screen of scrolling, then the moon rises over the next.
+      // Both reverse on the way up.
+      const progress = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * 1.8)))
       headerRef.current?.style.setProperty('--sun', progress.toFixed(3))
     }
     onScroll()
