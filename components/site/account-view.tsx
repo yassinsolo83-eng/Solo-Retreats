@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { fetchMe, signOut, type Me } from './account-data'
+import { fetchMe, maybeSignedIn, signOut, type Me } from './account-data'
 import { PerksList, SigninForm } from './signin-form'
 import { TextLink } from './text-link'
 import { whatsappUrl } from '@/lib/whatsapp'
@@ -13,7 +13,9 @@ const pill: Record<string, string> = {
 }
 
 export function AccountView({ perks, whatsappNumber }: { perks?: string[] | null; whatsappNumber?: string | null }) {
-  const [me, setMe] = useState<Me | null>(null)
+  // Starts as "not signed in" so the sign-in box is part of the page's first paint. Only a
+  // browser that may be signed in switches to a short loading state while we ask the server.
+  const [me, setMe] = useState<Me | null>({ loggedIn: false })
   const [notice, setNotice] = useState('')
   const [welcome, setWelcome] = useState(false)
 
@@ -22,6 +24,7 @@ export function AccountView({ perks, whatsappNumber }: { perks?: string[] | null
     if (params.get('login') === 'expired') setNotice('That sign-in link has expired. Enter your email to get a new one.')
     if (params.get('login') === 'error') setNotice('Something went wrong signing you in. Please try again.')
     if (params.get('welcome')) setWelcome(true)
+    if (maybeSignedIn()) setMe(null)
     fetchMe().then(setMe)
   }, [])
 
