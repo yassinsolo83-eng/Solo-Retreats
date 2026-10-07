@@ -208,3 +208,19 @@ export async function RetreatWeather({
     </section>
   )
 }
+
+/* ---------- Home hero: today's temperature in Sinai ---------- */
+
+export async function SinaiNowChip() {
+  const place = findPlace('dahab')
+  const forecast = place ? await getForecast(place) : null
+  if (!forecast?.now) return null
+  const now = describeSymbol(forecast.now.symbol)
+  return (
+    <div className="absolute right-5 top-24 z-10 flex items-center gap-2 rounded-full bg-ink/35 px-4 py-2 text-sm text-sand backdrop-blur-md lg:right-10">
+      <span aria-hidden="true">{now.icon}</span>
+      <span className="font-semibold tabular-nums">{forecast.now.temp}°</span>
+      <span className="text-sand/80">Sinai today</span>
+    </div>
+  )
+}
