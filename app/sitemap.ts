@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     sanityFetch<string[]>(retreatSlugsQuery, {}, []),
     sanityFetch<string[]>(partnerSlugsQuery, {}, []),
   ])
-  const pages = ['', '/retreats', '/partners', '/gallery', '/about', '/faq', '/terms', '/privacy']
+  const pages = ['', '/retreats', '/partners', '/gallery', '/about', '/faq', '/how-it-works', '/why-us', '/traveler-reviews', '/sinai-weather', '/terms', '/privacy']
   return [
     ...pages.map((p) => ({ url: `${siteUrl}${p}` })),
     ...retreats.map((s) => ({ url: `${siteUrl}/retreats/${s}` })),

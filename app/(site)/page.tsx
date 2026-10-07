@@ -3,25 +3,17 @@ import { RetreatCard } from '@/components/site/retreat-card'
 import { JsonLd } from '@/components/site/json-ld'
 import { EmptyState } from '@/components/site/page-header'
 import { BRAND, siteUrl } from '@/lib/site'
+import { ArrowRight } from 'lucide-react'
 import { HeroSlideshow } from '@/components/site/hero-slideshow'
 import { HomeIntro } from '@/components/site/home-intro'
 import { TextLink } from '@/components/site/text-link'
-import { SanityImage } from '@/components/site/sanity-image'
 import { toHeroSlides } from '@/lib/hero'
-import { reviewerName, Stars } from '@/components/site/stars'
-import { SinaiWeather, weatherForCards } from '@/components/site/weather'
+import { weatherForCards } from '@/components/site/weather'
 import type { RetreatCard as RetreatCardType, SiteSettings, Testimonial } from '@/lib/types'
 import { sanityFetch } from '@/sanity/lib/client'
 import { settingsQuery, testimonialsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
 
 export const revalidate = 60
-
-const steps = [
-  ['Pick a retreat', 'Every trip page lists the dates, the camp, the transport and what is included.'],
-  ['Send a request', 'The booking form opens WhatsApp with your details filled in.'],
-  ['Get the details', 'We reply with the price, the meeting point and how to confirm your spot.'],
-  ['Show up', 'We handle the planning and travel with the group the whole way.'],
-]
 
 export default async function HomePage() {
   const [settings, retreats, testimonials] = await Promise.all([
@@ -34,6 +26,13 @@ export default async function HomePage() {
   const fallback = settings?.heroImage?.asset ? settings.heroImage : retreats[0]?.coverImage
   if (!slides.length && fallback?.asset) slides.push({ key: 'fallback', kind: 'image', image: fallback })
   const headlineWords = (settings?.heroTitle || 'Small-group retreats to the quiet corners of Egypt').split(/\s+/)
+  const explore = [
+    { href: '/how-it-works', title: 'How booking works', text: 'Four simple steps, from picking a trip to travelling with the group.' },
+    { href: '/why-us', title: 'Why people travel with us', text: 'What makes a Solo Retreats trip different.' },
+    { href: '/about', title: settings?.aboutTitle || 'I plan it, and I come along', text: 'Meet the person who plans every trip and travels with you.' },
+    ...(testimonials.length ? [{ href: '/traveler-reviews', title: 'From past travelers', text: 'What people say after a trip with us.' }] : []),
+    ...(settings?.showSinaiWeather !== false ? [{ href: '/sinai-weather', title: 'Sinai right now', text: 'Live weather from the places we travel to.' }] : []),
+  ]
   const organization = {
     '@context': 'https://schema.org',
     '@type': 'TravelAgency',
@@ -88,64 +87,22 @@ export default async function HomePage() {
         )}
       </section>
 
-      {settings?.showSinaiWeather !== false && <SinaiWeather placeIds={settings?.weatherPlaces} />}
-
-      <section className="bg-pine px-5 py-20 text-sand lg:px-10 lg:py-28">
-        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.8fr_1.2fr]">
-          <h2 className="font-display text-5xl leading-none tracking-tight sm:text-6xl">How booking works</h2>
-          <ol className="grid gap-x-10 sm:grid-cols-2">
-            {steps.map(([title, text], i) => (
-              <li key={title} className="border-t border-sand/20 py-7">
-                <span className="font-display text-2xl text-amber">{i + 1}</span>
-                <h3 className="mt-3 font-display text-2xl">{title}</h3>
-                <p className="mt-2 max-w-xs text-[15px] leading-relaxed text-sand/75">{text}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
+      <section className="mx-auto max-w-7xl px-5 pb-20 lg:px-10 lg:pb-28">
+        <h2 className="mb-10 font-display text-4xl leading-none tracking-tight sm:text-5xl">Good to know</h2>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {explore.map((item) => (
+            <li key={item.href}>
+              <Link href={item.href} className="group flex h-full flex-col justify-between gap-8 rounded-[1.75rem] bg-dune p-7 transition hover:bg-dune-deep">
+                <div>
+                  <h3 className="font-display text-2xl leading-snug">{item.title}</h3>
+                  <p className="mt-2 leading-relaxed text-stone">{item.text}</p>
+                </div>
+                <ArrowRight aria-hidden="true" className="size-5 text-clay transition group-hover:translate-x-1" />
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
-
-      {!!settings?.highlights?.length && (
-        <section className="mx-auto max-w-7xl px-5 py-20 lg:px-10 lg:py-28">
-          <h2 className="mb-12 max-w-2xl font-display text-5xl leading-none tracking-tight sm:text-6xl">Why people travel with us</h2>
-          <div className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-            {settings.highlights.map((h) => (
-              <div key={h._key} className="border-l-2 border-amber pl-5">
-                <h3 className="font-display text-2xl">{h.title}</h3>
-                {h.text && <p className="mt-2 leading-relaxed text-stone">{h.text}</p>}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {(settings?.organizerPhoto || settings?.organizerName) && (
-        <section className="bg-dune px-5 py-20 lg:px-10 lg:py-28">
-          <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-[.8fr_1.2fr] lg:gap-20">
-            <SanityImage image={settings.organizerPhoto} width={800} height={960} className="aspect-[5/6] w-full rounded-[2rem]" />
-            <div>
-              <h2 className="font-display text-5xl leading-none tracking-tight sm:text-6xl">{settings.aboutTitle || `Hi, I'm ${settings.organizerName}`}</h2>
-              <p className="mt-6 max-w-lg text-lg leading-relaxed text-stone">I plan every retreat myself and I'm on every trip, so there's always someone who knows the plan and knows your name.</p>
-              <p className="mt-8"><TextLink href="/about">More about me</TextLink></p>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {testimonials.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 py-20 lg:px-10 lg:py-28">
-          <h2 className="mb-12 font-display text-5xl leading-none tracking-tight sm:text-6xl">From past travelers</h2>
-          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-            {testimonials.map((t) => (
-              <figure key={t._id}>
-                {t.rating ? <Stars rating={t.rating} /> : null}
-                <blockquote className="mt-3 font-display text-2xl leading-snug">“{t.quote}”</blockquote>
-                <figcaption className="mt-4 text-sm text-stone">{reviewerName(t.name)}{t.retreat ? `, ${t.retreat}` : ''}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </section>
-      )}
     </>
   )
 }

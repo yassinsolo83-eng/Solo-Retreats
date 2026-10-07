@@ -219,6 +219,8 @@ export default async function RetreatPage({ params }: Props) {
                   kind={kind}
                   whatsappNumber={settings?.whatsappNumber}
                   pageUrl={pageUrl}
+                  pagePath={`/retreats/${retreat.slug}`}
+                  perks={settings?.memberPerks}
                 />
               </>
             )}
