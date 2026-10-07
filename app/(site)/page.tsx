@@ -54,7 +54,7 @@ export default async function HomePage() {
         <HeroSlideshow slides={slides} seconds={settings?.heroSeconds ?? 7} />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,32,.35)_0%,rgba(20,38,32,.15)_35%,rgba(20,38,32,.85)_100%)]" />
         <div className="relative mx-auto w-full max-w-7xl px-5 pb-14 pt-32 lg:px-10 lg:pb-20">
-          <h1 className="max-w-5xl font-display text-[clamp(2.9rem,8.5vw,7.5rem)] font-light leading-[0.95] tracking-[-0.03em]">
+          <h1 className="max-w-5xl font-display text-[clamp(2.25rem,5vw,4.5rem)] font-light leading-[0.95] tracking-[-0.03em]">
             {headlineWords.map((word, i) => (
               <span key={i}>
                 <span className="word-rise" style={{ '--i': i } as React.CSSProperties}>{word}</span>{i < headlineWords.length - 1 ? ' ' : ''}
