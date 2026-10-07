@@ -13,7 +13,7 @@ import { SharePanel } from '@/components/site/share-panel'
 import { averageRating, reviewerName, Stars } from '@/components/site/stars'
 import { RetreatWeather } from '@/components/site/weather'
 import { formatDeparture, formatRangeShort, isBookable, nights, upcomingDepartures } from '@/lib/dates'
-import { BRAND, siteUrl } from '@/lib/site'
+import { BRAND, DEFAULT_CANCELLATION_NOTE, DEFAULT_PAYMENT_NOTE, siteUrl } from '@/lib/site'
 import type { PartnerSummary, RetreatDetail, SiteSettings } from '@/lib/types'
 import { imageUrl, ogImageUrl } from '@/sanity/lib/image'
 import { sanityFetch } from '@/sanity/lib/client'
@@ -84,6 +84,7 @@ export default async function RetreatPage({ params }: Props) {
   const facts: [string, React.ReactNode][] = [
     ['Where', retreat.destination],
     first ? ['Length', `${nights(first)} nights`] : null,
+    retreat.maxTravelers ? ['Group size', `Up to ${retreat.maxTravelers} travelers`] : null,
     retreat.camp ? ['Stay', <PartnerLink key="camp" partner={retreat.camp} />] : null,
     retreat.bus ? ['Transport', <PartnerLink key="bus" partner={retreat.bus} />] : null,
     retreat.meetingPoint
@@ -225,6 +226,15 @@ export default async function RetreatPage({ params }: Props) {
               </>
             )}
           </div>
+          {!completed && (
+            <div className="mt-6 rounded-[2rem] border border-ink/10 p-6 sm:p-8">
+              <h2 className="font-display text-2xl">Payment</h2>
+              <p className="mt-2 whitespace-pre-line leading-relaxed text-stone">{settings?.paymentNote?.trim() || DEFAULT_PAYMENT_NOTE}</p>
+              <h2 className="mt-6 font-display text-2xl">If your plans change</h2>
+              <p className="mt-2 whitespace-pre-line leading-relaxed text-stone">{settings?.cancellationNote?.trim() || DEFAULT_CANCELLATION_NOTE}</p>
+              <p className="mt-5 text-sm"><TextLink href="/terms">Full booking terms</TextLink></p>
+            </div>
+          )}
           <div className="mt-6">
             <SharePanel url={pageUrl} imagePath={`/retreats/${retreat.slug}/share-image`} title={retreat.title} subtitle={first ? `${retreat.destination} · ${formatRangeShort(first)}` : retreat.destination} />
           </div>
