@@ -222,6 +222,7 @@ export default async function RetreatPage({ params }: Props) {
                   pageUrl={pageUrl}
                   pagePath={`/retreats/${retreat.slug}`}
                   perks={settings?.memberPerks}
+                  maxTravelers={retreat.maxTravelers}
                 />
               </>
             )}
