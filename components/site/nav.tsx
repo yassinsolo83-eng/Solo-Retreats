@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, User, X } from 'lucide-react'
 import { navLinks } from '@/lib/site'
 import { Wordmark } from './logo'
 
@@ -87,6 +87,9 @@ export function Nav() {
               {link.label}
             </Link>
           ))}
+          <Link href="/account" onClick={() => handleClick('/account')} aria-current={isActive('/account') ? 'page' : undefined} className="inline-flex items-center gap-2 underline-offset-8 hover:underline">
+            <User aria-hidden="true" className="size-4" /> My bookings
+          </Link>
         </div>
         <button
           type="button"
@@ -111,6 +114,7 @@ export function Nav() {
                 {link.label}
               </Link>
             ))}
+            <Link href="/account" onClick={() => handleClick('/account')} className="border-b border-sand/15 py-4 font-display text-3xl">My bookings</Link>
           </div>
         </div>
       )}

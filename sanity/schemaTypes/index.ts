@@ -1,8 +1,9 @@
 import { bookingRequest } from './bookingRequest'
+import { customer } from './customer'
 import { faq, galleryImage, testimonial } from './content'
 import { bookingTerms, privacyPolicy } from './legal'
 import { busCompany, camp } from './partners'
 import { retreat } from './retreat'
 import { siteSettings } from './siteSettings'
 
-export const schemaTypes = [siteSettings, retreat, camp, busCompany, galleryImage, testimonial, faq, bookingRequest, bookingTerms, privacyPolicy]
+export const schemaTypes = [siteSettings, retreat, camp, busCompany, galleryImage, testimonial, faq, bookingRequest, customer, bookingTerms, privacyPolicy]

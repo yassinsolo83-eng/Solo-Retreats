@@ -12,6 +12,7 @@ export const siteSettings = defineType({
     { name: 'contact', title: 'Contact', default: true },
     { name: 'home', title: 'Home page' },
     { name: 'about', title: 'About page' },
+    { name: 'account', title: 'Accounts' },
     { name: 'seo', title: 'Sharing & SEO' },
   ],
   fields: [
@@ -37,7 +38,7 @@ export const siteSettings = defineType({
       type: 'boolean',
       group: 'home',
       initialValue: true,
-      description: 'A live weather section on the home page, under "Coming up". Updates by itself every hour.',
+      description: 'Shows the live weather page (a link on the home page and in the footer). Updates by itself every hour.',
     }),
     defineField({
       name: 'weatherPlaces',
@@ -128,6 +129,17 @@ export const siteSettings = defineType({
           ],
         }),
       ],
+      validation: (rule) => rule.max(6),
+    }),
+
+    defineField({
+      name: 'memberPerks',
+      title: 'Perks for travelers who sign in',
+      type: 'array',
+      group: 'account',
+      of: [{ type: 'string' }],
+      description:
+        'Optional. One short line per perk, shown wherever a traveler is invited to sign in (the booking form, the account page, How booking works). Example: "Early access to new retreats". Leave empty to show only the basics (follow your request status and skip retyping your details).',
       validation: (rule) => rule.max(6),
     }),
 

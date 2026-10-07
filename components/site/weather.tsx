@@ -34,7 +34,7 @@ function Credit({ typical = false, className = '' }: { typical?: boolean; classN
 
 /* ---------- Home page: "Sinai right now" ---------- */
 
-export async function SinaiWeather({ placeIds }: { placeIds?: string[] | null }) {
+export async function SinaiWeather({ placeIds, standalone = false }: { placeIds?: string[] | null; standalone?: boolean }) {
   const ids = placeIds?.length ? placeIds : DEFAULT_HOME_PLACES
   const places = ids.map((id) => SINAI_PLACES.find((p) => p.id === id)).filter((p) => !!p)
   const forecasts = await Promise.all(places.map((p) => getForecast(p)))
@@ -46,13 +46,16 @@ export async function SinaiWeather({ placeIds }: { placeIds?: string[] | null })
 
   return (
     <section className="mx-auto max-w-7xl px-5 pb-20 lg:px-10 lg:pb-28">
-      <div className="mb-8 flex flex-col justify-between gap-3 sm:mb-10 sm:flex-row sm:items-end">
-        <div>
-          <h2 className="font-display text-4xl leading-none tracking-tight sm:text-6xl">Sinai right now</h2>
-          <p className="mt-3 max-w-md text-stone sm:mt-4">Live temperatures from the places we travel to.</p>
+      {/* On its own page the page header already says this, so only the credit is kept. */}
+      {!standalone && (
+        <div className="mb-8 flex flex-col justify-between gap-3 sm:mb-10 sm:flex-row sm:items-end">
+          <div>
+            <h2 className="font-display text-4xl leading-none tracking-tight sm:text-6xl">Sinai right now</h2>
+            <p className="mt-3 max-w-md text-stone sm:mt-4">Live temperatures from the places we travel to.</p>
+          </div>
+          <Credit className="hidden text-stone sm:block" />
         </div>
-        <Credit className="hidden text-stone sm:block" />
-      </div>
+      )}
 
       {/* Phones: one compact row per place */}
       <ul className="overflow-hidden rounded-3xl bg-dune sm:hidden">
@@ -74,7 +77,7 @@ export async function SinaiWeather({ placeIds }: { placeIds?: string[] | null })
           )
         })}
       </ul>
-      <Credit className="mt-3 text-stone sm:hidden" />
+      <Credit className={`mt-3 text-stone ${standalone ? '' : 'sm:hidden'}`} />
 
       {/* Tablets and up: a card per place with the next three days */}
       <ul className="hidden gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-5">

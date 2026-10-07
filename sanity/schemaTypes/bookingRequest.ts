@@ -16,7 +16,9 @@ export const bookingRequest = defineType({
   fields: [
     defineField({ name: 'status', title: 'Status', type: 'string', options: { list: bookingStatuses, layout: 'radio', direction: 'horizontal' }, initialValue: 'new' }),
     defineField({ name: 'kind', title: 'Type', type: 'string', readOnly: true, options: { list: [{ title: 'Booking', value: 'booking' }, { title: 'Waitlist', value: 'waitlist' }] } }),
+    defineField({ name: 'customer', title: 'Customer account', type: 'reference', to: [{ type: 'customer' }], weak: true, readOnly: true, description: 'Filled in when the traveler was signed in.' }),
     defineField({ name: 'name', title: 'Name', type: 'string', readOnly: true }),
+    defineField({ name: 'email', title: 'Email', type: 'string', readOnly: true, description: 'Only when the traveler was signed in.' }),
     defineField({ name: 'phone', title: 'Phone', type: 'string', readOnly: true }),
     defineField({ name: 'travelers', title: 'Travelers', type: 'number', readOnly: true }),
     defineField({ name: 'retreat', title: 'Retreat', type: 'reference', to: [{ type: 'retreat' }], weak: true, readOnly: true }),

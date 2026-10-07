@@ -16,3 +16,11 @@ export const navLinks = [
 
 /** True for text that is a web address, e.g. a Maps link pasted into a name field. */
 export const isUrl = (value?: string | null) => Boolean(value && /^(https?:\/\/|www\.)/i.test(value.trim()))
+
+/** Pages that used to be sections of the home page. Linked from the home page and the footer. */
+export const moreLinks = [
+  { href: '/how-it-works', label: 'How booking works' },
+  { href: '/why-us', label: 'Why travel with us' },
+  { href: '/traveler-reviews', label: 'Traveler reviews' },
+  { href: '/sinai-weather', label: 'Sinai weather' },
+]

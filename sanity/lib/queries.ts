@@ -38,7 +38,7 @@ export const settingsQuery = defineQuery(`*[_type == "siteSettings"][0]{
   },
   organizerName, organizerPhoto${image}, aboutTitle, aboutText,
   seoDescription, shareImage${image},
-  showSinaiWeather, weatherPlaces
+  showSinaiWeather, weatherPlaces, memberPerks
 }`)
 
 export const upcomingRetreatsQuery = defineQuery(`*[_type == "retreat" && !${ended} && defined(slug.current)]
@@ -89,6 +89,10 @@ export const galleryQuery = defineQuery(`*[_type == "galleryImage" && defined(im
 export const faqsQuery = defineQuery(`*[_type == "faq"] | order(coalesce(order, 9999) asc, _createdAt asc){ _id, question, answer }`)
 
 export const testimonialsQuery = defineQuery(`*[_type == "testimonial" && approved != false] | order(_createdAt desc)[0...6]{
+  _id, name, quote, rating, _createdAt, photo${image}, "retreat": retreat->title
+}`)
+
+export const allTestimonialsQuery = defineQuery(`*[_type == "testimonial" && approved != false] | order(_createdAt desc)[0...100]{
   _id, name, quote, rating, _createdAt, photo${image}, "retreat": retreat->title
 }`)
 

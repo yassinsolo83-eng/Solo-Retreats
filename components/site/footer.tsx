@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BRAND, navLinks } from '@/lib/site'
+import { BRAND, moreLinks, navLinks } from '@/lib/site'
 import { Wordmark } from './logo'
 import type { SiteSettings } from '@/lib/types'
 import { whatsappUrl } from '@/lib/whatsapp'
@@ -24,7 +24,7 @@ export function Footer({ settings }: { settings: SiteSettings | null }) {
         <div>
           <p className="mb-4 text-sm text-amber">Explore</p>
           <ul className="flex flex-col gap-2 text-sm">
-            {navLinks.map((l) => <li key={l.href}><Link href={l.href} className="hover:text-sand">{l.label}</Link></li>)}
+            {[...navLinks, ...moreLinks, { href: '/account', label: 'My bookings' }].map((l) => <li key={l.href}><Link href={l.href} className="hover:text-sand">{l.label}</Link></li>)}
           </ul>
         </div>
         {(socials.length > 0 || settings?.email) && (

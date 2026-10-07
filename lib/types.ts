@@ -94,6 +94,7 @@ export type SiteSettings = {
   seoDescription?: string | null
   showSinaiWeather?: boolean | null
   weatherPlaces?: string[] | null
+  memberPerks?: string[] | null
   shareImage?: SanityImage | null
 }
 
