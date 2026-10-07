@@ -4,6 +4,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Keep room for the scrollbar so the page doesn't jump sideways when it appears or disappears. */
+html { scrollbar-gutter: stable; }
+
 @theme inline {
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
