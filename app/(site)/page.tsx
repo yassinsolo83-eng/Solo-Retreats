@@ -8,7 +8,7 @@ import { HeroSlideshow } from '@/components/site/hero-slideshow'
 import { HomeIntro } from '@/components/site/home-intro'
 import { TextLink } from '@/components/site/text-link'
 import { toHeroSlides } from '@/lib/hero'
-import { SinaiWeather, weatherForCards } from '@/components/site/weather'
+import { SinaiNowChip, SinaiWeather, weatherForCards } from '@/components/site/weather'
 import type { RetreatCard as RetreatCardType, SiteSettings, Testimonial } from '@/lib/types'
 import { sanityFetch } from '@/sanity/lib/client'
 import { settingsQuery, testimonialsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
@@ -53,6 +53,7 @@ export default async function HomePage() {
       <section className="relative -mt-20 flex min-h-[88svh] items-end overflow-hidden bg-pine text-sand">
         <HeroSlideshow slides={slides} seconds={settings?.heroSeconds ?? 7} />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,32,.35)_0%,rgba(20,38,32,.15)_35%,rgba(20,38,32,.85)_100%)]" />
+        <SinaiNowChip />
         <div className="relative mx-auto w-full max-w-7xl px-5 pb-14 pt-32 lg:px-10 lg:pb-20">
           <h1 className="max-w-5xl font-display text-[clamp(2.25rem,5vw,4.5rem)] font-light leading-[0.95] tracking-[-0.03em]">
             {headlineWords.map((word, i) => (
