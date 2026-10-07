@@ -55,7 +55,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,32,.35)_0%,rgba(20,38,32,.15)_35%,rgba(20,38,32,.85)_100%)]" />
         <SinaiNowChip />
         <div className="relative mx-auto w-full max-w-7xl px-5 pb-14 pt-32 lg:px-10 lg:pb-20">
-          <h1 className="max-w-5xl font-display text-[clamp(2.25rem,5vw,4.5rem)] font-light leading-[0.95] tracking-[-0.03em]">
+          <h1 className="max-w-5xl font-display text-[clamp(1.75rem,5vw,4.5rem)] font-light leading-[0.95] tracking-[-0.03em]">
             {headlineWords.map((word, i) => (
               <span key={i}>
                 <span className="word-rise" style={{ '--i': i } as React.CSSProperties}>{word}</span>{i < headlineWords.length - 1 ? ' ' : ''}
@@ -63,7 +63,7 @@ export default async function HomePage() {
             ))}
           </h1>
           <div className="fade-up mt-10 flex flex-col gap-8 md:flex-row md:items-end md:justify-between" style={{ '--d': `${headlineWords.length * 90 + 600}ms` } as React.CSSProperties}>
-            <p className="max-w-md text-lg leading-relaxed text-sand/85">
+            <p className="max-w-md text-sm leading-relaxed text-sand/85 sm:text-lg">
               {settings?.heroText || 'We plan the trip, pick the camp and the bus, and travel with you. You bring yourself.'}
             </p>
             <Link href="/retreats" className="inline-flex min-h-13 items-center justify-center rounded-full bg-amber px-7 py-4 font-semibold text-ink transition hover:bg-[#e4b477]">
