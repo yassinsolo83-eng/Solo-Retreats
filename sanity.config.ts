@@ -27,7 +27,10 @@ export default defineConfig({
       if (singletonTypes.has(context.schemaType)) return actions.filter(({ action }) => action && singletonActions.has(action))
       if (privateTypes.has(context.schemaType)) {
         return actions.map((item) =>
-          item.action === 'publish' ? Object.assign((props: Parameters<typeof item>[0]) => (props.published ? item(props) : null), { action: 'publish' as const }) : item,
+          item.action === 'publish' ? Object.assign((props: Parameters<typeof item>[0]) => {
+            const result = item(props)
+            return props.published ? result : null
+          }, { action: 'publish' as const }) : item,
         )
       }
       return actions
