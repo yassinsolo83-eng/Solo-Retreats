@@ -21,11 +21,14 @@ type Props = {
   /** Path of this page, so a sign-in link brings the traveler back here. */
   pagePath: string
   perks?: string[] | null
+  /** Most people one request can include; set per retreat in Studio. */
+  maxTravelers?: number | null
 }
 
 const field = 'w-full rounded-2xl border border-ink/15 bg-sand px-4 py-3.5 text-base text-ink outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20'
 
-export function BookingForm({ retreatId, retreatTitle, departures, kind, whatsappNumber, pageUrl, pagePath, perks }: Props) {
+export function BookingForm({ retreatId, retreatTitle, departures, kind, whatsappNumber, pageUrl, pagePath, perks, maxTravelers }: Props) {
+  const maxPeople = Math.min(20, Math.max(1, maxTravelers ?? 10))
   const [departureKey, setDepartureKey] = useState(departures[0]?._key ?? '')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -162,7 +165,7 @@ export function BookingForm({ retreatId, retreatTitle, departures, kind, whatsap
         <div className="flex items-center gap-3" role="group" aria-labelledby="travelers-label">
           <button type="button" aria-label="Fewer people" onClick={() => setTravelers(Math.max(1, travelers - 1))} className="size-12 rounded-full border border-ink/15 bg-sand text-xl disabled:opacity-40" disabled={travelers <= 1}>−</button>
           <output aria-live="polite" className="min-w-24 text-center text-base">{travelers === 1 ? 'Just me' : `${travelers} people`}</output>
-          <button type="button" aria-label="More people" onClick={() => setTravelers(Math.min(10, travelers + 1))} className="size-12 rounded-full border border-ink/15 bg-sand text-xl disabled:opacity-40" disabled={travelers >= 10}>+</button>
+          <button type="button" aria-label="More people" onClick={() => setTravelers(Math.min(maxPeople, travelers + 1))} className="size-12 rounded-full border border-ink/15 bg-sand text-xl disabled:opacity-40" disabled={travelers >= maxPeople}>+</button>
         </div>
       </div>
       <label className="flex flex-col gap-2 text-sm font-medium">
