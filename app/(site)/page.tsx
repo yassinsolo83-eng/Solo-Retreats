@@ -54,7 +54,7 @@ export default async function HomePage() {
         <HeroSlideshow slides={slides} seconds={settings?.heroSeconds ?? 7} />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,32,.35)_0%,rgba(20,38,32,.15)_35%,rgba(20,38,32,.85)_100%)]" />
         <SinaiNowChip />
-        <div className="relative mx-auto w-full max-w-7xl px-5 pb-14 pt-32 lg:px-10 lg:pb-20">
+        <div className="relative mx-auto w-full max-w-7xl px-5 pb-8 pt-32 sm:pb-14 lg:px-10 lg:pb-20">
           <h1 className="max-w-5xl font-display text-[clamp(1.75rem,5vw,4.5rem)] font-light leading-[0.95] tracking-[-0.03em]">
             {headlineWords.map((word, i) => (
               <span key={i}>
@@ -62,11 +62,11 @@ export default async function HomePage() {
               </span>
             ))}
           </h1>
-          <div className="fade-up mt-10 flex flex-col gap-8 md:flex-row md:items-end md:justify-between" style={{ '--d': `${headlineWords.length * 90 + 600}ms` } as React.CSSProperties}>
-            <p className="max-w-md text-sm leading-relaxed text-sand/85 sm:text-lg">
+          <div className="fade-up mt-4 flex flex-col gap-4 sm:mt-10 sm:gap-8 md:flex-row md:items-end md:justify-between" style={{ '--d': `${headlineWords.length * 90 + 600}ms` } as React.CSSProperties}>
+            <p className="max-w-md text-xs leading-snug text-sand/85 sm:text-lg sm:leading-relaxed">
               {settings?.heroText || 'We plan the trip, pick the camp and the bus, and travel with you. You bring yourself.'}
             </p>
-            <Link href="/retreats" className="inline-flex min-h-13 items-center justify-center rounded-full bg-amber px-7 py-4 font-semibold text-ink transition hover:bg-[#e4b477]">
+            <Link href="/retreats" className="inline-flex min-h-11 items-center justify-center rounded-full bg-amber px-6 py-3 text-sm font-semibold sm:min-h-13 sm:px-7 sm:py-4 sm:text-base text-ink transition hover:bg-[#e4b477]">
               See upcoming retreats
             </Link>
           </div>
