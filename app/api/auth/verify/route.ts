@@ -1,3 +1,5 @@
+// 'solo_in' is a harmless marker (no data in it) that tells the browser someone may be signed in,
+// so visitors who aren't never wait on the server. Keep the name in step with components/site/account-data.ts.
 import { NextResponse } from 'next/server'
 import { createSessionToken, SESSION_COOKIE_NAME, SESSION_MAX_AGE_SECONDS, verifyLoginToken } from '@/lib/auth'
 import { asDraftId, customerIdFor } from '@/lib/customers'
@@ -31,6 +33,13 @@ export async function GET(request: Request) {
     const res = to(next, 'welcome=1')
     res.cookies.set(SESSION_COOKIE_NAME, createSessionToken({ email: data.email, customerId }), {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: SESSION_MAX_AGE_SECONDS,
+    })
+    res.cookies.set('solo_in', '1', {
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
