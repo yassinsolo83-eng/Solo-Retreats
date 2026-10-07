@@ -38,7 +38,7 @@ export const settingsQuery = defineQuery(`*[_type == "siteSettings"][0]{
   },
   organizerName, organizerPhoto${image}, aboutTitle, aboutText,
   seoDescription, shareImage${image},
-  showSinaiWeather, weatherPlaces, memberPerks
+  showSinaiWeather, weatherPlaces, memberPerks, paymentNote, cancellationNote
 }`)
 
 export const upcomingRetreatsQuery = defineQuery(`*[_type == "retreat" && !${ended} && defined(slug.current)]
@@ -54,7 +54,7 @@ export const retreatBySlugQuery = defineQuery(`*[_type == "retreat" && slug.curr
   description,
   itinerary[]{ _key, title, text },
   included, notIncluded, whatToBring,
-  meetingPoint, meetingPointMap, meetingTime,
+  meetingPoint, meetingPointMap, meetingTime, maxTravelers,
   images[]${photo},
   "camp": camp->{ name, "slug": slug.current, location, summary, coverImage${image} },
   "bus": busCompany->{ name, "slug": slug.current, vehicleType, summary, coverImage${image} },

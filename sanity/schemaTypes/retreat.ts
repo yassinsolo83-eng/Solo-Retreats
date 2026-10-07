@@ -66,6 +66,14 @@ export const retreat = defineType({
       validation: (r) => r.min(0).integer(),
     }),
     defineField({
+      name: 'maxTravelers',
+      title: 'Group size (maximum)',
+      type: 'number',
+      group: 'main',
+      description: 'Optional. Shows "Up to N travelers" on the trip page. Leave empty to hide it.',
+      validation: (r) => r.min(1).max(100).integer(),
+    }),
+    defineField({
       name: 'shortDescription',
       title: 'Short description',
       type: 'text',

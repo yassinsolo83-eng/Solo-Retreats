@@ -24,3 +24,8 @@ export const moreLinks = [
   { href: '/traveler-reviews', label: 'Traveler reviews' },
   { href: '/sinai-weather', label: 'Sinai weather' },
 ]
+
+/** Used on trip pages until the real wording is written in the Studio (Site settings > Payment & cancellation). */
+export const DEFAULT_PAYMENT_NOTE = '25% deposit confirms your spot. The rest is paid on the day of departure.'
+export const DEFAULT_CANCELLATION_NOTE =
+  'Cancel at least 2 weeks before departure and you get a full refund. If you cancel in the last week, the 25% deposit is not refunded.'

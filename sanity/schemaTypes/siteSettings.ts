@@ -13,6 +13,7 @@ export const siteSettings = defineType({
     { name: 'home', title: 'Home page' },
     { name: 'about', title: 'About page' },
     { name: 'account', title: 'Accounts' },
+    { name: 'booking', title: 'Payment & cancellation' },
     { name: 'seo', title: 'Sharing & SEO' },
   ],
   fields: [
@@ -141,6 +142,23 @@ export const siteSettings = defineType({
       description:
         'Optional. One short line per perk, shown wherever a traveler is invited to sign in (the booking form, the account page, How booking works). Example: "Early access to new retreats". Leave empty to show only the basics (follow your request status and skip retyping your details).',
       validation: (rule) => rule.max(6),
+    }),
+
+    defineField({
+      name: 'paymentNote',
+      title: 'How payment works',
+      type: 'text',
+      rows: 3,
+      group: 'booking',
+      description: 'Shown next to the booking form on every trip page. Leave empty to use the default: "25% deposit confirms your spot. The rest is paid on the day of departure."',
+    }),
+    defineField({
+      name: 'cancellationNote',
+      title: 'If your plans change',
+      type: 'text',
+      rows: 4,
+      group: 'booking',
+      description: 'Shown next to the booking form on every trip page. Keep it short and match the Booking terms. Leave empty to use the default text.',
     }),
 
     defineField({ name: 'organizerName', title: 'Your name', type: 'string', group: 'about' }),
