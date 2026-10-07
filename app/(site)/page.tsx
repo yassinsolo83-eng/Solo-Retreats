@@ -8,7 +8,7 @@ import { HeroSlideshow } from '@/components/site/hero-slideshow'
 import { HomeIntro } from '@/components/site/home-intro'
 import { TextLink } from '@/components/site/text-link'
 import { toHeroSlides } from '@/lib/hero'
-import { weatherForCards } from '@/components/site/weather'
+import { SinaiWeather, weatherForCards } from '@/components/site/weather'
 import type { RetreatCard as RetreatCardType, SiteSettings, Testimonial } from '@/lib/types'
 import { sanityFetch } from '@/sanity/lib/client'
 import { settingsQuery, testimonialsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
@@ -31,7 +31,6 @@ export default async function HomePage() {
     { href: '/why-us', title: 'Why people travel with us', text: 'What makes a Solo Retreats trip different.' },
     { href: '/about', title: settings?.aboutTitle || 'I plan it, and I come along', text: 'Meet the person who plans every trip and travels with you.' },
     ...(testimonials.length ? [{ href: '/traveler-reviews', title: 'From past travelers', text: 'What people say after a trip with us.' }] : []),
-    ...(settings?.showSinaiWeather !== false ? [{ href: '/sinai-weather', title: 'Sinai right now', text: 'Live weather from the places we travel to.' }] : []),
   ]
   const organization = {
     '@context': 'https://schema.org',
@@ -86,6 +85,8 @@ export default async function HomePage() {
           <EmptyState title="New trips are on the way" text="The next retreats are being planned right now. Follow us to hear about them first." action={settings?.instagram ? <TextLink href={settings.instagram}>Follow on Instagram</TextLink> : null} />
         )}
       </section>
+
+      {settings?.showSinaiWeather !== false && <SinaiWeather placeIds={settings?.weatherPlaces} />}
 
       <section className="mx-auto max-w-7xl px-5 pb-20 lg:px-10 lg:pb-28">
         <h2 className="mb-10 font-display text-4xl leading-none tracking-tight sm:text-5xl">Good to know</h2>
