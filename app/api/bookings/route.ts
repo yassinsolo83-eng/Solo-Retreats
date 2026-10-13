@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { sessionFromRequest } from '@/lib/auth'
 import { ACTIVE_STATUSES, asDraftId, newPrivateId } from '@/lib/customers'
 import { sendBookingEmail } from '@/lib/notify'
+import { parseSeats, SEAT_STATUSES } from '@/lib/seats'
 import { writeClient } from '@/sanity/lib/write-client'
 
 const clean = (value: unknown, max: number) => (typeof value === 'string' ? value.trim().slice(0, max) : '')
@@ -38,6 +39,23 @@ export async function POST(request: Request) {
     dates: clean(body.dates, 100),
     message: clean(body.message, 1000),
   }
+  // A booking needs one seat per traveler, and a seat can only be on one open request per trip.
+  const seats = booking.kind === 'booking' ? parseSeats(body.seats) : []
+  if (!seats || (booking.kind === 'booking' && seats.length !== booking.travelers)) {
+    return NextResponse.json({ ok: false, error: 'seats_required' }, { status: 400 })
+  }
+  if (seats.length && writeClient) {
+    try {
+      const taken = await writeClient.fetch<number[]>(
+        `*[_type == "bookingRequest" && retreat._ref == $retreat && kind == "booking" && status in $statuses].seats[]`,
+        { retreat: retreatId, statuses: SEAT_STATUSES },
+      )
+      if (seats.some((n) => (taken ?? []).includes(n))) return NextResponse.json({ ok: false, error: 'seats_taken' }, { status: 409 })
+    } catch (error) {
+      console.error('Could not check taken seats:', error)
+    }
+  }
+
   const source = clean(body.source, 120)
   const session = sessionFromRequest(request)
 
@@ -62,6 +80,7 @@ export async function POST(request: Request) {
     _type: 'bookingRequest',
     status: 'new',
     ...booking,
+    ...(seats.length ? { seats } : {}),
     source,
     ...(session && { email: session.email, customer: { _type: 'reference', _ref: session.customerId, _weak: true } }),
     retreat: { _type: 'reference', _ref: retreatId, _weak: true },
@@ -70,7 +89,7 @@ export async function POST(request: Request) {
   // Save and email at the same time; one failing doesn't stop the other.
   const [saved, emailed] = await Promise.allSettled([
     writeClient ? writeClient.create(doc) : Promise.reject(new Error('SANITY_API_WRITE_TOKEN is not set')),
-    sendBookingEmail(booking),
+    sendBookingEmail({ ...booking, seats }),
   ])
 
   if (saved.status === 'rejected') console.error('Could not save booking request:', saved.reason)
