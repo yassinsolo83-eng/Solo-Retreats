@@ -9,6 +9,9 @@ const photo = `{ _key, asset, hotspot, crop, alt, ${photoMeta} }`
 /** A retreat counts as completed when marked so, or once every return date is before today (Cairo time). */
 const ended = `(status == "completed" || count(departures[returnDate >= $today]) == 0)`
 
+/** Running right now: a departure has started and none is still to come. Shown under "Happening now", not under upcoming. */
+const ongoing = `(count(departures[departureDate <= $today && returnDate >= $today]) > 0 && count(departures[departureDate > $today]) == 0)`
+
 const retreatCard = `
   _id,
   title,
@@ -41,8 +44,11 @@ export const settingsQuery = defineQuery(`*[_type == "siteSettings"][0]{
   showSinaiWeather, weatherPlaces, memberPerks, paymentNote, cancellationNote
 }`)
 
-export const upcomingRetreatsQuery = defineQuery(`*[_type == "retreat" && !${ended} && defined(slug.current)]
+export const upcomingRetreatsQuery = defineQuery(`*[_type == "retreat" && !${ended} && !${ongoing} && defined(slug.current)]
   | order(coalesce(departures[0].departureDate, "9999") asc){ ${retreatCard} }`)
+
+export const ongoingRetreatsQuery = defineQuery(`*[_type == "retreat" && !${ended} && ${ongoing} && defined(slug.current)]
+  | order(departures[0].departureDate asc){ ${retreatCard} }`)
 
 export const pastRetreatsQuery = defineQuery(`*[_type == "retreat" && ${ended} && defined(slug.current)]
   | order(departures[0].departureDate desc){ ${retreatCard} }`)
