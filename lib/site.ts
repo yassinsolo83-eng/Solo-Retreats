@@ -10,6 +10,7 @@ export const navLinks = [
   { href: '/retreats', label: 'Retreats' },
   { href: '/partners', label: 'Partners' },
   { href: '/gallery', label: 'Gallery' },
+  { href: '/traveler-reviews', label: 'Reviews' },
   { href: '/about', label: 'About' },
   { href: '/faq', label: 'FAQ' },
 ]
@@ -21,7 +22,6 @@ export const isUrl = (value?: string | null) => Boolean(value && /^(https?:\/\/|
 export const moreLinks = [
   { href: '/how-it-works', label: 'How booking works' },
   { href: '/why-us', label: 'Why travel with us' },
-  { href: '/traveler-reviews', label: 'Traveler reviews' },
   { href: '/sinai-weather', label: 'Sinai weather' },
 ]
 
