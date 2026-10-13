@@ -4,6 +4,8 @@ import { TextLink } from './text-link'
 import { useEffect, useState } from 'react'
 import { activeFor, fetchMe, signOut, type Me } from './account-data'
 import { PerksList, SigninForm } from './signin-form'
+import { SeatPicker } from './seat-picker'
+import { BUS_SEATS } from '@/lib/seats'
 import { formatDeparture } from '@/lib/dates'
 import { track } from '@/lib/analytics'
 import { getAttribution } from '@/lib/attribution'
@@ -28,7 +30,6 @@ type Props = {
 const field = 'w-full rounded-2xl border border-ink/15 bg-sand px-4 py-3.5 text-base text-ink outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20'
 
 export function BookingForm({ retreatId, retreatTitle, departures, kind, whatsappNumber, pageUrl, pagePath, perks, maxTravelers }: Props) {
-  const maxPeople = Math.min(20, Math.max(1, maxTravelers ?? 10))
   const [departureKey, setDepartureKey] = useState(departures[0]?._key ?? '')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -38,6 +39,32 @@ export function BookingForm({ retreatId, retreatTitle, departures, kind, whatsap
   const [sentWithoutWhatsapp, setSentWithoutWhatsapp] = useState(false)
   const [me, setMe] = useState<Me | null>(null)
   const [sending, setSending] = useState(false)
+  const [taken, setTaken] = useState<number[] | null>(null)
+  const [seats, setSeats] = useState<number[]>([])
+
+  // Seats already taken on this trip. Only used for bookings, not the waitlist.
+  const loadTaken = () =>
+    fetch(`/api/seats?retreat=${encodeURIComponent(retreatId)}`, { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d: { taken?: number[] }) => {
+        const list = d.taken ?? []
+        setTaken(list)
+        setSeats((current) => current.filter((n) => !list.includes(n)))
+      })
+      .catch(() => setTaken([]))
+  useEffect(() => {
+    if (kind === 'booking') loadTaken()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kind, retreatId])
+
+  const freeSeats = BUS_SEATS - (taken?.length ?? 0)
+  const maxPeople = Math.min(20, Math.max(1, maxTravelers ?? 10), kind === 'booking' ? Math.max(1, freeSeats) : 20)
+  const setPeople = (n: number) => {
+    setTravelers(n)
+    setSeats((current) => current.slice(0, n))
+  }
+  const toggleSeat = (n: number) =>
+    setSeats((current) => (current.includes(n) ? current.filter((x) => x !== n) : current.length < travelers ? [...current, n].sort((a, b) => a - b) : current))
 
   // Signing in is optional. When someone is signed in we fill in their details and stop a
   // second open request for the same retreat. Without the cookie this costs no API request.
@@ -56,24 +83,32 @@ export function BookingForm({ retreatId, retreatTitle, departures, kind, whatsap
     const honeypot = new FormData(event.currentTarget).get('company')
     if (name.trim().length < 2) return setError('Add your name so we know who to reply to.')
     if (phone.replace(/\D/g, '').length < 8) return setError('Add a phone number we can reach you on.')
+    if (kind === 'booking' && taken && freeSeats <= 0) return setError('All seats on this trip are taken.')
+    if (kind === 'booking' && seats.length !== travelers) return setError(`Pick ${travelers} seat${travelers > 1 ? 's' : ''} on the bus map (you picked ${seats.length}).`)
     setError('')
 
     const departure = departures.find((d) => d._key === departureKey)
     const dates = departure ? formatDeparture(departure) : undefined
-    const payload = { kind, retreatId, retreatTitle, dates, name: name.trim(), phone: phone.trim(), travelers, message: message.trim(), company: honeypot }
+    const payload = { kind, retreatId, retreatTitle, dates, name: name.trim(), phone: phone.trim(), travelers, message: message.trim(), company: honeypot, ...(kind === 'booking' ? { seats } : {}) }
     track(kind === 'waitlist' ? 'waitlist_request' : 'booking_request', { retreat: retreatTitle, travelers })
 
     // Keep a copy in the studio. keepalive lets the request finish while WhatsApp opens.
     const save = () => fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, source: getAttribution() }), keepalive: true })
 
-    if (me?.loggedIn) {
-      // Wait for the answer so a duplicate request is caught before WhatsApp opens.
-      // Any other failure is ignored: the WhatsApp message is what matters to the traveler.
+    // Bookings wait for the answer so a taken seat or a duplicate request is caught before
+    // WhatsApp opens. Any other failure is ignored: the WhatsApp message is what matters.
+    if (me?.loggedIn || kind === 'booking') {
       setSending(true)
       try {
         const res = await save()
         if (res.status === 409) {
-          setMe(await fetchMe())
+          const data = await res.json().catch(() => ({}))
+          if (data.error === 'seats_taken') {
+            await loadTaken()
+            setError('Someone just took one of those seats. Please pick again.')
+          } else {
+            setMe(await fetchMe())
+          }
           setSending(false)
           return
         }
@@ -163,11 +198,23 @@ export function BookingForm({ retreatId, retreatTitle, departures, kind, whatsap
       <div className="flex flex-col gap-2 text-sm font-medium">
         <span id="travelers-label">How many people?</span>
         <div className="flex items-center gap-3" role="group" aria-labelledby="travelers-label">
-          <button type="button" aria-label="Fewer people" onClick={() => setTravelers(Math.max(1, travelers - 1))} className="size-12 rounded-full border border-ink/15 bg-sand text-xl disabled:opacity-40" disabled={travelers <= 1}>−</button>
+          <button type="button" aria-label="Fewer people" onClick={() => setPeople(Math.max(1, travelers - 1))} className="size-12 rounded-full border border-ink/15 bg-sand text-xl disabled:opacity-40" disabled={travelers <= 1}>−</button>
           <output aria-live="polite" className="min-w-24 text-center text-base">{travelers === 1 ? 'Just me' : `${travelers} people`}</output>
-          <button type="button" aria-label="More people" onClick={() => setTravelers(Math.min(maxPeople, travelers + 1))} className="size-12 rounded-full border border-ink/15 bg-sand text-xl disabled:opacity-40" disabled={travelers >= maxPeople}>+</button>
+          <button type="button" aria-label="More people" onClick={() => setPeople(Math.min(maxPeople, travelers + 1))} className="size-12 rounded-full border border-ink/15 bg-sand text-xl disabled:opacity-40" disabled={travelers >= maxPeople}>+</button>
         </div>
       </div>
+      {kind === 'booking' && taken && (
+        <div className="flex flex-col gap-3 text-sm font-medium">
+          <span>
+            Choose your seat{travelers > 1 ? 's' : ''} <span className="font-normal text-stone">({seats.length} of {travelers} picked)</span>
+          </span>
+          {freeSeats <= 0 ? (
+            <p className="rounded-2xl bg-clay/10 px-4 py-3 font-normal text-clay">All seats on this trip are taken.</p>
+          ) : (
+            <SeatPicker taken={taken} selected={seats} onToggle={toggleSeat} needed={travelers} />
+          )}
+        </div>
+      )}
       <label className="flex flex-col gap-2 text-sm font-medium">
         Anything we should know? <span className="font-normal text-stone">(optional)</span>
         <textarea className={`${field} resize-none`} rows={3} value={message} onChange={(e) => setMessage(e.target.value)} />

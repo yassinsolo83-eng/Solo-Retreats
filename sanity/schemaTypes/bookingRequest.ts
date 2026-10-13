@@ -21,6 +21,7 @@ export const bookingRequest = defineType({
     defineField({ name: 'email', title: 'Email', type: 'string', readOnly: true, description: 'Only when the traveler was signed in.' }),
     defineField({ name: 'phone', title: 'Phone', type: 'string', readOnly: true }),
     defineField({ name: 'travelers', title: 'Travelers', type: 'number', readOnly: true }),
+    defineField({ name: 'seats', title: 'Bus seats', type: 'array', of: [{ type: 'number' }], description: 'Seat numbers picked on the site. Taken while the request is New, Contacted or Confirmed; free again when Cancelled. You can edit them.' }),
     defineField({ name: 'retreat', title: 'Retreat', type: 'reference', to: [{ type: 'retreat' }], weak: true, readOnly: true }),
     defineField({ name: 'retreatTitle', title: 'Retreat name (at time of request)', type: 'string', readOnly: true }),
     defineField({ name: 'dates', title: 'Dates', type: 'string', readOnly: true }),

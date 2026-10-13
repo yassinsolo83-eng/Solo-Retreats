@@ -11,6 +11,7 @@ type BookingMessage = {
   name: string
   phone: string
   travelers: number
+  seats?: number[]
   message?: string
   link: string
 }
@@ -23,6 +24,7 @@ export function bookingMessage(b: BookingMessage) {
     '',
     b.dates ? `Dates: ${b.dates}` : null,
     `Travelers: ${b.travelers}`,
+    b.seats?.length ? `Seats: ${b.seats.join(', ')}` : null,
     `Name: ${b.name}`,
     `Phone: ${b.phone}`,
     b.message ? `Message: ${b.message}` : null,

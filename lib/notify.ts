@@ -6,6 +6,7 @@ type Booking = {
   name: string
   phone: string
   travelers: number
+  seats?: number[]
   retreatTitle: string
   dates: string
   message: string
@@ -37,6 +38,7 @@ export async function sendBookingEmail(b: Booking) {
     ['Retreat', b.retreatTitle],
     ['Dates', b.dates || '—'],
     ['Travelers', String(b.travelers)],
+    ...(b.seats?.length ? [['Seats', b.seats.join(', ')] as [string, string]] : []),
     ['Name', b.name],
     ['Phone', b.phone],
     ['Message', b.message || '—'],
