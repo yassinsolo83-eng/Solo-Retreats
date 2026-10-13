@@ -4,14 +4,15 @@ import { RetreatCard } from '@/components/site/retreat-card'
 import { weatherForCards } from '@/components/site/weather'
 import type { RetreatCard as RetreatCardType } from '@/lib/types'
 import { sanityFetch } from '@/sanity/lib/client'
-import { pastRetreatsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
+import { ongoingRetreatsQuery, pastRetreatsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
 
 export const revalidate = 60
 export const metadata: Metadata = { title: 'Retreats', description: 'Upcoming small-group retreats across Egypt, with dates, camps and transport.' }
 
 export default async function RetreatsPage() {
-  const [upcoming, past] = await Promise.all([
+  const [upcoming, ongoing, past] = await Promise.all([
     sanityFetch<RetreatCardType[]>(upcomingRetreatsQuery, {}, []),
+    sanityFetch<RetreatCardType[]>(ongoingRetreatsQuery, {}, []),
     sanityFetch<RetreatCardType[]>(pastRetreatsQuery, {}, []),
   ])
   const weather = await weatherForCards(upcoming)
@@ -27,6 +28,14 @@ export default async function RetreatsPage() {
           <EmptyState title="New trips are on the way" text="There are no open retreats right now. The next ones will show up here first." />
         )}
       </section>
+      {ongoing.length > 0 && (
+        <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-10">
+          <h2 className="mb-10 font-display text-4xl font-bold tracking-tight sm:text-5xl">Happening now</h2>
+          <div className="grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
+            {ongoing.map((r) => <RetreatCard key={r._id} retreat={r} past />)}
+          </div>
+        </section>
+      )}
       {past.length > 0 && (
         <section className="border-t border-ink/10 bg-dune/60 px-5 py-20 lg:px-10">
           <div className="mx-auto max-w-7xl">
