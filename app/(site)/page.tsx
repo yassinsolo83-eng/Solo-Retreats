@@ -11,15 +11,16 @@ import { toHeroSlides } from '@/lib/hero'
 import { SinaiNowChip, SinaiWeather, weatherForCards } from '@/components/site/weather'
 import type { RetreatCard as RetreatCardType, SiteSettings, Testimonial } from '@/lib/types'
 import { sanityFetch } from '@/sanity/lib/client'
-import { settingsQuery, testimonialsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
+import { pastRetreatsQuery, settingsQuery, testimonialsQuery, upcomingRetreatsQuery } from '@/sanity/lib/queries'
 
 export const revalidate = 60
 
 export default async function HomePage() {
-  const [settings, retreats, testimonials] = await Promise.all([
+  const [settings, retreats, testimonials, past] = await Promise.all([
     sanityFetch<SiteSettings | null>(settingsQuery, {}, null),
     sanityFetch<RetreatCardType[]>(upcomingRetreatsQuery, {}, []),
     sanityFetch<Testimonial[]>(testimonialsQuery, {}, []),
+    sanityFetch<RetreatCardType[]>(pastRetreatsQuery, {}, []),
   ])
   const weather = await weatherForCards(retreats.slice(0, 3))
   const slides = toHeroSlides(settings?.heroSlides)
@@ -83,7 +84,23 @@ export default async function HomePage() {
             {retreats.slice(0, 3).map((r) => <RetreatCard key={r._id} retreat={r} weather={weather.get(r._id)} />)}
           </div>
         ) : (
-          <EmptyState title="New trips are on the way" text="The next retreats are being planned right now. Follow us to hear about them first." action={settings?.instagram ? <TextLink href={settings.instagram}>Follow on Instagram</TextLink> : null} />
+          <>
+            <EmptyState title="New trips are on the way" text="The next retreats are being planned right now. Follow us to hear about them first." action={settings?.instagram ? <TextLink href={settings.instagram}>Follow on Instagram</TextLink> : null} />
+            {past.length > 0 && (
+              <div className="mt-16">
+                <div className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+                  <div>
+                    <h3 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">See how our last trips went</h3>
+                    <p className="mt-2 text-stone">Photos, camps and what travelers said.</p>
+                  </div>
+                  <TextLink href="/retreats">All past retreats</TextLink>
+                </div>
+                <div className="grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
+                  {past.slice(0, 3).map((r) => <RetreatCard key={r._id} retreat={r} past />)}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </section>
 
