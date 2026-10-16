@@ -1,4 +1,4 @@
-import { EyeOpenIcon } from '@sanity/icons'
+import { EyeOpenIcon } from '@sanity/icons/EyeOpen'
 import { defineField, defineType } from 'sanity'
 
 /** One record, kept by the website. It counts each browser once. Nothing to edit here. */
