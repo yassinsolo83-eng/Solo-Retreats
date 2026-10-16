@@ -27,6 +27,7 @@ export const bookingRequest = defineType({
     defineField({ name: 'dates', title: 'Dates', type: 'string', readOnly: true }),
     defineField({ name: 'message', title: 'Message', type: 'text', rows: 3, readOnly: true }),
     defineField({ name: 'source', title: 'Came from', type: 'string', readOnly: true, description: 'Where they first found the site (Instagram, Google, a shared link...).' }),
+    defineField({ name: 'notifiedStatus', title: 'Last emailed status', type: 'string', readOnly: true, description: 'Set by the Email customer button, so the same email is not sent twice.' }),
     defineField({ name: 'notes', title: 'Your notes', type: 'text', rows: 3, description: 'Private. Only you see this.' }),
   ],
   orderings: [{ title: 'Newest first', name: 'createdDesc', by: [{ field: '_createdAt', direction: 'desc' }] }],

@@ -41,7 +41,7 @@ export const settingsQuery = defineQuery(`*[_type == "siteSettings"][0]{
   },
   organizerName, organizerPhoto${image}, aboutTitle, aboutText,
   seoDescription, shareImage${image},
-  showSinaiWeather, weatherPlaces, memberPerks, paymentNote, cancellationNote
+  showSinaiWeather, weatherPlaces, showVisitorCounter, visitorsBefore, memberPerks, paymentNote, cancellationNote
 }`)
 
 export const upcomingRetreatsQuery = defineQuery(`*[_type == "retreat" && !${ended} && !${ongoing} && defined(slug.current)]

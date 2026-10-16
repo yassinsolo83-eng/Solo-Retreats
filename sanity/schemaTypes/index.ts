@@ -5,5 +5,6 @@ import { bookingTerms, privacyPolicy } from './legal'
 import { busCompany, camp } from './partners'
 import { retreat } from './retreat'
 import { siteSettings } from './siteSettings'
+import { visitorCounter } from './visitorCounter'
 
-export const schemaTypes = [siteSettings, retreat, camp, busCompany, galleryImage, testimonial, faq, bookingRequest, customer, bookingTerms, privacyPolicy]
+export const schemaTypes = [siteSettings, retreat, camp, busCompany, galleryImage, testimonial, faq, bookingRequest, customer, bookingTerms, privacyPolicy, visitorCounter]

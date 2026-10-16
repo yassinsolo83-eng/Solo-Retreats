@@ -134,6 +134,22 @@ export const siteSettings = defineType({
     }),
 
     defineField({
+      name: 'showVisitorCounter',
+      title: 'Show the visitor counter on the home page',
+      type: 'boolean',
+      group: 'home',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'visitorsBefore',
+      title: 'Visits before the counter started',
+      type: 'number',
+      group: 'home',
+      description: 'Optional. Added to what the website has counted since the counter went live, for visits you know happened earlier (for example, from your old analytics). The real count is under "Visitor counter" in the menu.',
+      validation: (rule) => rule.min(0).integer(),
+    }),
+
+    defineField({
       name: 'memberPerks',
       title: 'Perks for travelers who sign in',
       type: 'array',

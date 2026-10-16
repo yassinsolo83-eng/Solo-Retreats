@@ -95,6 +95,8 @@ export type SiteSettings = {
   seoDescription?: string | null
   showSinaiWeather?: boolean | null
   weatherPlaces?: string[] | null
+  showVisitorCounter?: boolean | null
+  visitorsBefore?: number | null
   memberPerks?: string[] | null
   paymentNote?: string | null
   cancellationNote?: string | null
