@@ -6,6 +6,7 @@ import { BRAND, siteUrl } from '@/lib/site'
 import { ArrowRight } from 'lucide-react'
 import { HeroSlideshow } from '@/components/site/hero-slideshow'
 import { HomeIntro } from '@/components/site/home-intro'
+import { VisitorBadge } from '@/components/site/visitor-badge'
 import { TextLink } from '@/components/site/text-link'
 import { toHeroSlides } from '@/lib/hero'
 import { SinaiNowChip, SinaiWeather, weatherForCards } from '@/components/site/weather'
@@ -73,6 +74,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <VisitorBadge before={settings?.visitorsBefore} show={settings?.showVisitorCounter} />
 
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-10 lg:py-28">
         <div className="mb-12 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
