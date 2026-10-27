@@ -5,8 +5,10 @@ import { defineField, defineType } from 'sanity'
 import { imageGallery, imageWithAlt, linkFields, simpleBlocks } from './fields'
 
 const arabicFields = [
+  defineField({ name: 'nameAr', title: 'Arabic name', type: 'string', description: 'Optional. Shown when a visitor switches to Arabic.' }),
   defineField({ name: 'summaryAr', title: 'Arabic short description', type: 'text', rows: 2, validation: (r) => r.max(220), description: 'Optional. Shown when a visitor switches the page to Arabic.' }),
   simpleBlocks('descriptionAr', 'Arabic full description'),
+  defineField({ name: 'amenitiesAr', title: 'Arabic: list of items', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' }, description: 'Same order as the English list.' }),
 ]
 
 const slugField = defineField({
@@ -31,6 +33,7 @@ export const camp = defineType({
   fields: [
     defineField({ name: 'name', title: 'Name', type: 'string', validation: (r) => r.required() }),
     slugField,
+    defineField({ name: 'locationAr', title: 'Arabic location', type: 'string' }),
     defineField({
       name: 'location',
       title: 'Location',
@@ -60,6 +63,7 @@ export const busCompany = defineType({
     defineField({ name: 'name', title: 'Name', type: 'string', validation: (r) => r.required() }),
     slugField,
     defineField({ name: 'vehicleType', title: 'Vehicle', type: 'string', placeholder: 'VIP mini-bus, 28 seats' }),
+    defineField({ name: 'vehicleTypeAr', title: 'Arabic vehicle', type: 'string' }),
     defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
     simpleBlocks('description', 'Full description'),
     ...arabicFields,
@@ -80,6 +84,7 @@ export const workshop = defineType({
     defineField({ name: 'name', title: 'Workshop name', type: 'string', placeholder: 'Shadow Acting Workshop', validation: (r) => r.required() }),
     slugField,
     defineField({ name: 'host', title: 'Hosted by', type: 'string', placeholder: 'Alaa Mohamed Saad Eldin', description: 'The facilitator or trainer.' }),
+    defineField({ name: 'hostAr', title: 'Arabic: hosted by', type: 'string' }),
     defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
     simpleBlocks('description', 'Full description'),
     ...arabicFields,
@@ -100,6 +105,7 @@ export const activity = defineType({
     defineField({ name: 'name', title: 'Name', type: 'string', placeholder: 'Snorkeling trip, Desert safari', validation: (r) => r.required() }),
     slugField,
     defineField({ name: 'host', title: 'Run by', type: 'string', description: 'The company or guide who runs it.' }),
+    defineField({ name: 'hostAr', title: 'Arabic: run by', type: 'string' }),
     defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
     simpleBlocks('description', 'Full description'),
     ...arabicFields,

@@ -41,6 +41,7 @@ export const structure: StructureResolver = (S) =>
         .child(S.document().schemaType('visitorCounter').documentId('visitorCounter').title('Visitor counter')),
       S.divider(),
       S.documentTypeListItem('retreat').title('Retreats'),
+      S.documentTypeListItem('tripItem').title('Trip items (included, bring…)'),
       S.listItem()
         .title('Booking requests')
         .schemaType('bookingRequest')

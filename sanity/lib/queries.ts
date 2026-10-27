@@ -15,11 +15,14 @@ const ongoing = `(count(departures[departureDate <= $today && returnDate >= $tod
 const retreatCard = `
   _id,
   title,
+  titleAr,
   "slug": slug.current,
   destination,
+  destinationAr,
   "status": select(${ended} => "completed", status),
   spotsLeft,
   shortDescription,
+  shortDescriptionAr,
   showPrice,
   price,
   departures[]{ _key, departureDate, returnDate, note },
@@ -58,21 +61,23 @@ export const retreatSlugsQuery = defineQuery(`*[_type == "retreat" && defined(sl
 export const retreatBySlugQuery = defineQuery(`*[_type == "retreat" && slug.current == $slug][0]{
   ${retreatCard},
   description,
-  shortDescriptionAr,
   descriptionAr,
-  itinerary[]{ _key, title, text },
+  itinerary[]{ _key, title, titleAr, text, textAr },
   included, notIncluded, whatToBring,
-  meetingPoint, meetingPointMap, meetingTime, maxTravelers,
+  "includedItems": includedItems[]->{ _id, name, nameAr },
+  "notIncludedItems": notIncludedItems[]->{ _id, name, nameAr },
+  "whatToBringItems": whatToBringItems[]->{ _id, name, nameAr },
+  meetingPoint, meetingPointAr, meetingPointMap, meetingTime, maxTravelers,
   images[]${photo},
-  "camp": camp->{ name, "slug": slug.current, location, summary, coverImage${image} },
-  "bus": busCompany->{ name, "slug": slug.current, vehicleType, summary, coverImage${image} },
-  "workshop": workshop->{ name, "slug": slug.current, host, summary, coverImage${image} },
-  "activities": activities[]->{ name, "slug": slug.current, host, summary, coverImage${image} },
+  "camp": camp->{ name, nameAr, "slug": slug.current, location, summary, coverImage${image} },
+  "bus": busCompany->{ name, nameAr, "slug": slug.current, vehicleType, summary, coverImage${image} },
+  "workshop": workshop->{ name, nameAr, "slug": slug.current, host, summary, coverImage${image} },
+  "activities": activities[]->{ name, nameAr, "slug": slug.current, host, summary, coverImage${image} },
   "testimonials": *[_type == "testimonial" && retreat._ref == ^._id && approved != false] | order(_createdAt desc){ _id, name, quote, rating, _createdAt, photo${image} }
 }`)
 
 const partnerFields = `
-  _id, _type, name, "slug": slug.current, location, vehicleType, host, summary,
+  _id, _type, name, nameAr, "slug": slug.current, location, locationAr, vehicleType, vehicleTypeAr, host, hostAr, summary, summaryAr,
   coverImage${image}
 `
 
@@ -87,7 +92,7 @@ export const partnerSlugsQuery = defineQuery(`*[_type in ["camp", "busCompany", 
 
 export const partnerBySlugQuery = defineQuery(`*[_type in ["camp", "busCompany", "workshop", "activity"] && slug.current == $slug][0]{
   ${partnerFields},
-  description, summaryAr, descriptionAr, amenities, instagram, facebook, googleMaps,
+  description, descriptionAr, amenities, amenitiesAr, instagram, facebook, googleMaps,
   "coverPhoto": coverImage${photo},
   images[]${photo},
   "retreats": *[_type == "retreat" && references(^._id) && !${ended} && defined(slug.current)]{ ${retreatCard} },

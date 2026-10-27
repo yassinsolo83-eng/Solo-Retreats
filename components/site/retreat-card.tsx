@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { formatRangeShort, nights, statusLabel, upcomingDepartures } from '@/lib/dates'
 import type { RetreatCard as RetreatCardType } from '@/lib/types'
+import { LangText } from './lang-switch'
 import { SanityImage } from './sanity-image'
 import type { CardWeather } from './weather'
 
@@ -33,15 +34,15 @@ export function RetreatCard({ retreat, past = false, weather }: { retreat: Retre
         )}
       </div>
       <div className="mt-5 flex items-baseline justify-between gap-4">
-        <h3 className="font-display text-3xl leading-tight">{retreat.title}</h3>
+        <LangText as="h3" className="font-display text-3xl leading-tight" en={retreat.title} ar={retreat.titleAr} />
         {next && <span className="shrink-0 text-sm text-stone">{nights(next)} nights</span>}
       </div>
       <p className="mt-1 text-sm text-clay">
-        {retreat.destination}
+        <LangText en={retreat.destination} ar={retreat.destinationAr} />
         {next && <> · {formatRangeShort(next)}</>}
         {more > 0 && <> · +{more} more date{more > 1 ? 's' : ''}</>}
       </p>
-      {retreat.shortDescription && <p className="mt-3 max-w-md text-[15px] leading-relaxed text-stone">{retreat.shortDescription}</p>}
+      <LangText as="p" className="mt-3 max-w-md text-[15px] leading-relaxed text-stone" en={retreat.shortDescription} ar={retreat.shortDescriptionAr} />
     </Link>
   )
 }

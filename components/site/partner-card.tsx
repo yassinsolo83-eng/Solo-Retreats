@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Bus, Compass, Sparkles, Tent } from 'lucide-react'
 import { isUrl } from '@/lib/site'
 import type { PartnerSummary } from '@/lib/types'
+import { LangText } from './lang-switch'
 import { SanityImage } from './sanity-image'
 
 export function PartnerCard({ partner }: { partner: PartnerSummary }) {
@@ -19,8 +20,8 @@ export function PartnerCard({ partner }: { partner: PartnerSummary }) {
       )}
       <div>
         <p className="text-sm text-clay">{kind}{detail ? ` · ${detail}` : ''}</p>
-        <h3 className="mt-1 font-display text-2xl sm:text-3xl">{partner.name}</h3>
-        {partner.summary && <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-stone">{partner.summary}</p>}
+        <LangText as="h3" className="mt-1 font-display text-2xl sm:text-3xl" en={partner.name} ar={partner.nameAr} />
+        <LangText as="p" className="mt-2 line-clamp-2 text-sm leading-relaxed text-stone" en={partner.summary} ar={partner.summaryAr} />
       </div>
     </Link>
   )

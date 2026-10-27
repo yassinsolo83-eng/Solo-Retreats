@@ -3,6 +3,22 @@ import { defineArrayMember, defineField, defineType } from 'sanity'
 import { RetreatLinks } from '../components/retreat-links'
 import { imageGallery, imageWithAlt, simpleBlocks } from './fields'
 
+/** A list of reusable Trip items, picked instead of typed. `kind` limits the picker to items meant for this list. */
+const itemsField = (name: string, title: string, kind: string, description?: string) =>
+  defineField({
+    name,
+    title,
+    type: 'array',
+    description,
+    of: [
+      defineArrayMember({
+        type: 'reference',
+        to: [{ type: 'tripItem' }],
+        options: { filter: '!defined(kinds) || count(kinds) == 0 || $kind in kinds', filterParams: { kind } },
+      }),
+    ],
+  })
+
 export const retreatStatuses = [
   { title: 'Booking open', value: 'open' },
   { title: 'Few spots left', value: 'almostFull' },
@@ -23,6 +39,7 @@ export const retreat = defineType({
   ],
   fields: [
     defineField({ name: 'title', title: 'Title', type: 'string', group: 'main', validation: (r) => r.required() }),
+    defineField({ name: 'titleAr', title: 'Arabic title', type: 'string', group: 'main', description: 'Optional. Shown when a visitor switches to Arabic.' }),
     defineField({
       name: 'slug',
       title: 'Link',
@@ -47,6 +64,7 @@ export const retreat = defineType({
       components: { input: RetreatLinks },
     }),
     defineField({ name: 'destination', title: 'Destination', type: 'string', group: 'main', placeholder: 'Siwa Oasis', validation: (r) => r.required() }),
+    defineField({ name: 'destinationAr', title: 'Arabic destination', type: 'string', group: 'main' }),
     defineField({
       name: 'status',
       title: 'Status',
@@ -136,6 +154,7 @@ export const retreat = defineType({
     defineField({ name: 'workshop', title: 'Workshop host', type: 'reference', group: 'trip', to: [{ type: 'workshop' }] }),
     defineField({ name: 'activities', title: 'Activity partners', type: 'array', group: 'trip', of: [{ type: 'reference', to: [{ type: 'activity' }] }] }),
     defineField({ name: 'meetingPoint', title: 'Meeting point', type: 'string', group: 'trip', placeholder: 'Nasr City, in front of City Stars Gate 5' }),
+    defineField({ name: 'meetingPointAr', title: 'Arabic meeting point', type: 'string', group: 'trip' }),
     defineField({
       name: 'meetingPointMap',
       title: 'Meeting point on Google Maps',
@@ -166,18 +185,23 @@ export const retreat = defineType({
           fields: [
             defineField({ name: 'title', title: 'Title', type: 'string', placeholder: 'Day 1 — Arrival', validation: (r) => r.required() }),
             defineField({ name: 'text', title: 'What happens', type: 'text', rows: 3 }),
+            defineField({ name: 'titleAr', title: 'Arabic title', type: 'string' }),
+            defineField({ name: 'textAr', title: 'Arabic: what happens', type: 'text', rows: 3 }),
           ],
         }),
       ],
     }),
-    defineField({ name: 'included', title: 'Included', type: 'array', of: [{ type: 'string' }] }),
-    defineField({ name: 'notIncluded', title: 'Not included', type: 'array', of: [{ type: 'string' }] }),
-    defineField({ name: 'whatToBring', title: 'What to bring', type: 'array', of: [{ type: 'string' }] }),
+    itemsField('includedItems', 'Included', 'included', 'Pick from the Trip items library. Press Add, then choose, or create a new one right there.'),
+    itemsField('notIncludedItems', 'Not included', 'notIncluded'),
+    itemsField('whatToBringItems', 'What to bring', 'bring'),
+    defineField({ name: 'included', title: 'Included (old text list)', type: 'array', of: [{ type: 'string' }], description: 'Old way. Only shown on the site when nothing is picked in "Included" above.' }),
+    defineField({ name: 'notIncluded', title: 'Not included (old text list)', type: 'array', of: [{ type: 'string' }], description: 'Old way. Only shown when nothing is picked in "Not included" above.' }),
+    defineField({ name: 'whatToBring', title: 'What to bring (old text list)', type: 'array', of: [{ type: 'string' }], description: 'Old way. Only shown when nothing is picked in "What to bring" above.' }),
 
     imageWithAlt('coverImage', 'Cover photo', true),
     imageGallery('images', 'More photos'),
   ].map((field) => {
-    if (['description', 'descriptionAr', 'itinerary', 'included', 'notIncluded', 'whatToBring'].includes(field.name)) return { ...field, group: 'details' }
+    if (['description', 'descriptionAr', 'itinerary', 'included', 'notIncluded', 'whatToBring', 'includedItems', 'notIncludedItems', 'whatToBringItems'].includes(field.name)) return { ...field, group: 'details' }
     if (['coverImage', 'images'].includes(field.name)) return { ...field, group: 'photos' }
     return field
   }),
