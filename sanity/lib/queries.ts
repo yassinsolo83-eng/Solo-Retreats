@@ -58,6 +58,8 @@ export const retreatSlugsQuery = defineQuery(`*[_type == "retreat" && defined(sl
 export const retreatBySlugQuery = defineQuery(`*[_type == "retreat" && slug.current == $slug][0]{
   ${retreatCard},
   description,
+  shortDescriptionAr,
+  descriptionAr,
   itinerary[]{ _key, title, text },
   included, notIncluded, whatToBring,
   meetingPoint, meetingPointMap, meetingTime, maxTravelers,
@@ -85,7 +87,7 @@ export const partnerSlugsQuery = defineQuery(`*[_type in ["camp", "busCompany", 
 
 export const partnerBySlugQuery = defineQuery(`*[_type in ["camp", "busCompany", "workshop", "activity"] && slug.current == $slug][0]{
   ${partnerFields},
-  description, amenities, instagram, facebook, googleMaps,
+  description, summaryAr, descriptionAr, amenities, instagram, facebook, googleMaps,
   "coverPhoto": coverImage${photo},
   images[]${photo},
   "retreats": *[_type == "retreat" && references(^._id) && !${ended} && defined(slug.current)]{ ${retreatCard} },

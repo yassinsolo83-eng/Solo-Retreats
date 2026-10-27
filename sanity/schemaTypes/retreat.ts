@@ -83,6 +83,15 @@ export const retreat = defineType({
       validation: (r) => r.required().max(220),
     }),
     defineField({
+      name: 'shortDescriptionAr',
+      title: 'Arabic short description',
+      type: 'text',
+      rows: 3,
+      group: 'main',
+      description: 'Optional. Shown when a visitor switches the page to Arabic.',
+      validation: (r) => r.max(220),
+    }),
+    defineField({
       name: 'showPrice',
       title: 'Show price on the site',
       type: 'boolean',
@@ -145,6 +154,7 @@ export const retreat = defineType({
     }),
 
     simpleBlocks('description', 'Full description'),
+    simpleBlocks('descriptionAr', 'Arabic full description'),
     defineField({
       name: 'itinerary',
       title: 'Day by day',
@@ -167,7 +177,7 @@ export const retreat = defineType({
     imageWithAlt('coverImage', 'Cover photo', true),
     imageGallery('images', 'More photos'),
   ].map((field) => {
-    if (['description', 'itinerary', 'included', 'notIncluded', 'whatToBring'].includes(field.name)) return { ...field, group: 'details' }
+    if (['description', 'descriptionAr', 'itinerary', 'included', 'notIncluded', 'whatToBring'].includes(field.name)) return { ...field, group: 'details' }
     if (['coverImage', 'images'].includes(field.name)) return { ...field, group: 'photos' }
     return field
   }),

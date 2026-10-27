@@ -4,6 +4,11 @@ import { UserIcon } from '@sanity/icons/User'
 import { defineField, defineType } from 'sanity'
 import { imageGallery, imageWithAlt, linkFields, simpleBlocks } from './fields'
 
+const arabicFields = [
+  defineField({ name: 'summaryAr', title: 'Arabic short description', type: 'text', rows: 2, validation: (r) => r.max(220), description: 'Optional. Shown when a visitor switches the page to Arabic.' }),
+  simpleBlocks('descriptionAr', 'Arabic full description'),
+]
+
 const slugField = defineField({
   name: 'slug',
   title: 'Link',
@@ -37,6 +42,7 @@ export const camp = defineType({
     }),
     defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
     simpleBlocks('description', 'Full description'),
+    ...arabicFields,
     defineField({ name: 'amenities', title: 'What guests get', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
     imageWithAlt('coverImage', 'Cover photo'),
     imageGallery(),
@@ -56,6 +62,7 @@ export const busCompany = defineType({
     defineField({ name: 'vehicleType', title: 'Vehicle', type: 'string', placeholder: 'VIP mini-bus, 28 seats' }),
     defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
     simpleBlocks('description', 'Full description'),
+    ...arabicFields,
     defineField({ name: 'amenities', title: 'On board', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
     imageWithAlt('coverImage', 'Cover photo'),
     imageGallery(),
@@ -75,6 +82,7 @@ export const workshop = defineType({
     defineField({ name: 'host', title: 'Hosted by', type: 'string', placeholder: 'Alaa Mohamed Saad Eldin', description: 'The facilitator or trainer.' }),
     defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
     simpleBlocks('description', 'Full description'),
+    ...arabicFields,
     defineField({ name: 'amenities', title: 'What you will do', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
     imageWithAlt('coverImage', 'Cover photo'),
     imageGallery(),
@@ -94,6 +102,7 @@ export const activity = defineType({
     defineField({ name: 'host', title: 'Run by', type: 'string', description: 'The company or guide who runs it.' }),
     defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
     simpleBlocks('description', 'Full description'),
+    ...arabicFields,
     defineField({ name: 'amenities', title: 'What is included', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
     imageWithAlt('coverImage', 'Cover photo'),
     imageGallery(),
