@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { LangProvider } from '@/components/site/lang-switch'
 import { Footer } from '@/components/site/footer'
 import { MobileBar } from '@/components/site/mobile-bar'
 import { Nav } from '@/components/site/nav'
@@ -29,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const settings = await sanityFetch<SiteSettings | null>(settingsQuery, {}, null)
   return (
+    <LangProvider>
     <div className="site min-h-screen bg-sand text-ink">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-pine focus:px-4 focus:py-2 focus:text-sand">Skip to content</a>
       <VisitTracker />
@@ -37,5 +39,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Footer settings={settings} />
       <MobileBar whatsappNumber={settings?.whatsappNumber} />
     </div>
+    </LangProvider>
   )
 }

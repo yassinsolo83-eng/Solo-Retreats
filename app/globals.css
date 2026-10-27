@@ -458,3 +458,17 @@ html { scrollbar-gutter: stable; }
 .text-link:focus-visible .text-link-text { text-decoration-color: currentColor; }
 a[href^="/"].text-link:hover .text-link-arrow { transform: translateX(3px); }
 a[target="_blank"].text-link:hover .text-link-arrow { transform: translate(2px, -2px); }
+
+/* Arabic text: letters must stay joined, so no letter-spacing, and a little more line height than Latin. */
+[lang='ar'] {
+  letter-spacing: normal !important;
+}
+h1[lang='ar'],
+h2[lang='ar'],
+h3[lang='ar'] {
+  line-height: 1.4 !important;
+}
+[lang='ar'] p,
+p[lang='ar'] {
+  line-height: 1.85;
+}

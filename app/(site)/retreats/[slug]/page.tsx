@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation'
 import { BookingForm } from '@/components/site/booking-form'
 import { JsonLd } from '@/components/site/json-ld'
 import { StatusPill } from '@/components/site/retreat-card'
-import { Lang, LangProvider, LangToggle } from '@/components/site/lang-switch'
+import { LangBlock, LangText, LangToggle } from '@/components/site/lang-switch'
 import { RichText } from '@/components/site/rich-text'
 import { PhotoMosaic } from '@/components/site/photos'
 import { SanityImage } from '@/components/site/sanity-image'
@@ -15,7 +15,7 @@ import { averageRating, reviewerName, Stars } from '@/components/site/stars'
 import { RetreatWeather } from '@/components/site/weather'
 import { formatDeparture, formatRangeShort, isBookable, nights, upcomingDepartures } from '@/lib/dates'
 import { BRAND, DEFAULT_CANCELLATION_NOTE, DEFAULT_PAYMENT_NOTE, siteUrl } from '@/lib/site'
-import type { PartnerSummary, RetreatDetail, SiteSettings } from '@/lib/types'
+import type { PartnerSummary, RetreatDetail, SiteSettings, TripItem } from '@/lib/types'
 import { imageUrl, ogImageUrl } from '@/sanity/lib/image'
 import { sanityFetch } from '@/sanity/lib/client'
 import { retreatBySlugQuery, retreatSlugsQuery, settingsQuery } from '@/sanity/lib/queries'
@@ -82,10 +82,22 @@ export default async function RetreatPage({ params }: Props) {
         organizer: { '@type': 'Organization', name: BRAND, url: siteUrl },
       }))
 
-  const hasArabic = Boolean(retreat.shortDescriptionAr || retreat.descriptionAr?.length)
+  const hasArabic = Boolean(
+    retreat.titleAr ||
+      retreat.shortDescriptionAr ||
+      retreat.descriptionAr?.length ||
+      retreat.itinerary?.some((d) => d.titleAr || d.textAr) ||
+      [...(retreat.includedItems ?? []), ...(retreat.notIncludedItems ?? []), ...(retreat.whatToBringItems ?? [])].some((i) => i.nameAr),
+  )
+  // Picked Trip items win; the old plain-text lists are used only when nothing is picked.
+  const asLines = (picked?: TripItem[] | null, legacy?: string[] | null): Line[] =>
+    picked?.length ? picked.map((i) => ({ key: i._id, en: i.name, ar: i.nameAr })) : (legacy ?? []).map((text) => ({ key: text, en: text }))
+  const included = asLines(retreat.includedItems, retreat.included)
+  const notIncluded = asLines(retreat.notIncludedItems, retreat.notIncluded)
+  const whatToBring = asLines(retreat.whatToBringItems, retreat.whatToBring)
 
   const facts: [string, React.ReactNode][] = [
-    ['Where', retreat.destination],
+    ['Where', <LangText key="where" en={retreat.destination} ar={retreat.destinationAr} />],
     first ? ['Length', `${nights(first)} nights`] : null,
     retreat.maxTravelers ? ['Group size', `Up to ${retreat.maxTravelers} travelers`] : null,
     retreat.camp ? ['Stay', <PartnerLink key="camp" partner={retreat.camp} />] : null,
@@ -98,7 +110,7 @@ export default async function RetreatPage({ params }: Props) {
       ? [
           'Meeting point',
           <>
-            {[retreat.meetingPoint, retreat.meetingTime].filter(Boolean).join(', ')}
+            <LangText en={[retreat.meetingPoint, retreat.meetingTime].filter(Boolean).join(', ')} ar={retreat.meetingPointAr ? [retreat.meetingPointAr, retreat.meetingTime].filter(Boolean).join(', ') : undefined} />
             {retreat.meetingPointMap && (
               <span className="mt-1 block text-base">
                 <TextLink href={retreat.meetingPointMap} icon={<MapPin aria-hidden="true" />}>Open in Google Maps</TextLink>
@@ -111,7 +123,6 @@ export default async function RetreatPage({ params }: Props) {
   ].filter(Boolean) as [string, React.ReactNode][]
 
   return (
-    <LangProvider>
     <article>
       {events.length > 0 && <JsonLd data={events} />}
       <header className="mx-auto max-w-7xl px-5 pt-6 lg:px-10 lg:pt-10">
@@ -120,12 +131,9 @@ export default async function RetreatPage({ params }: Props) {
           <StatusPill retreat={retreat} />
           {first && <span className="text-sm text-clay">{shown.length > 1 ? `${shown.length} dates available` : formatDeparture(first)}</span>}
         </div>
-        <h1 className="mt-4 max-w-5xl font-display text-5xl font-light leading-[0.98] tracking-[-0.03em] sm:text-7xl lg:text-8xl">{retreat.title}</h1>
+        <LangText as="h1" className="mt-4 max-w-5xl font-display text-5xl font-light leading-[0.98] tracking-[-0.03em] sm:text-7xl lg:text-8xl" en={retreat.title} ar={retreat.titleAr} />
         {hasArabic && <LangToggle className="mt-6" />}
-        <Lang
-          en={retreat.shortDescription && <p className="mt-6 max-w-2xl text-xl leading-relaxed text-stone">{retreat.shortDescription}</p>}
-          ar={retreat.shortDescriptionAr && <p className="mt-6 max-w-2xl text-xl leading-relaxed text-stone">{retreat.shortDescriptionAr}</p>}
-        />
+        <LangText as="p" className="mt-6 max-w-2xl text-xl leading-relaxed text-stone" en={retreat.shortDescription} ar={retreat.shortDescriptionAr} />
       </header>
 
       <div className="mx-auto mt-10 max-w-7xl px-5 lg:px-10">
@@ -143,7 +151,7 @@ export default async function RetreatPage({ params }: Props) {
             ))}
           </dl>
 
-          <Lang
+          <LangBlock
             en={<RichText value={retreat.description} className="mt-12 max-w-2xl" />}
             ar={retreat.descriptionAr?.length ? <RichText value={retreat.descriptionAr} className="mt-12 max-w-2xl" /> : undefined}
           />
@@ -154,8 +162,8 @@ export default async function RetreatPage({ params }: Props) {
               <ol className="mt-8">
                 {retreat.itinerary.map((day) => (
                   <li key={day._key} className="grid gap-2 border-t border-ink/10 py-6 sm:grid-cols-[200px_1fr] sm:gap-8">
-                    <h3 className="font-display text-xl">{day.title}</h3>
-                    {day.text && <p className="leading-relaxed text-stone">{day.text}</p>}
+                    <LangText as="h3" className="font-display text-xl" en={day.title} ar={day.titleAr} />
+                    <LangText as="p" className="leading-relaxed text-stone" en={day.text} ar={day.textAr} />
                   </li>
                 ))}
               </ol>
@@ -166,16 +174,16 @@ export default async function RetreatPage({ params }: Props) {
             <RetreatWeather departure={departures[0]} destination={retreat.destination} campLocation={retreat.camp?.location} />
           )}
 
-          {(!!retreat.included?.length || !!retreat.notIncluded?.length) && (
+          {(included.length > 0 || notIncluded.length > 0) && (
             <section className="mt-16 grid gap-10 sm:grid-cols-2">
-              <List title="Included" items={retreat.included} mark="✓" />
-              <List title="Not included" items={retreat.notIncluded} mark="–" />
+              <List title="Included" items={included} mark="✓" />
+              <List title="Not included" items={notIncluded} mark="–" />
             </section>
           )}
 
-          {!!retreat.whatToBring?.length && (
+          {whatToBring.length > 0 && (
             <section className="mt-16 rounded-3xl bg-dune p-7 sm:p-9">
-              <List title="What to bring" items={retreat.whatToBring} mark="·" columns />
+              <List title="What to bring" items={whatToBring} mark="·" columns />
             </section>
           )}
 
@@ -257,25 +265,29 @@ export default async function RetreatPage({ params }: Props) {
         </aside>
       </div>
     </article>
-    </LangProvider>
   )
 }
 
 function PartnerLink({ partner }: { partner: PartnerSummary }) {
-  return <TextLink href={`/partners/${partner.slug}`}>{partner.name}</TextLink>
+  return <TextLink href={`/partners/${partner.slug}`}><LangText en={partner.name} ar={partner.nameAr} /></TextLink>
 }
 
-function List({ title, items, mark, columns }: { title: string; items?: string[] | null; mark: string; columns?: boolean }) {
-  if (!items?.length) return null
+type Line = { key: string; en: string; ar?: string | null }
+
+function List({ title, items, mark, columns }: { title: string; items: Line[]; mark: string; columns?: boolean }) {
+  if (!items.length) return null
   return (
     <div>
       <h2 className="font-display text-3xl tracking-tight">{title}</h2>
       <ul className={`mt-5 gap-x-8 ${columns ? 'sm:columns-2' : ''}`}>
-        {items.map((item) => (
-          <li key={item} className="flex gap-3 break-inside-avoid py-1.5 leading-relaxed text-stone">
-            <span aria-hidden="true" className="w-3 shrink-0 text-clay">{mark}</span>{item}
-          </li>
-        ))}
+        {items.map((item) => {
+          const row = (text: string) => (
+            <>
+              <span aria-hidden="true" className="w-3 shrink-0 text-clay">{mark}</span>{text}
+            </>
+          )
+          return <LangText key={item.key} as="li" className="flex gap-3 break-inside-avoid py-1.5 leading-relaxed text-stone" en={row(item.en)} ar={item.ar ? row(item.ar) : undefined} />
+        })}
       </ul>
     </div>
   )

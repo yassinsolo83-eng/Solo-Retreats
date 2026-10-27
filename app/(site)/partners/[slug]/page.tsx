@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation'
 import { RichText } from '@/components/site/rich-text'
 import { PhotoMosaic } from '@/components/site/photos'
 import { reviewerName, Stars } from '@/components/site/stars'
-import { Lang, LangProvider, LangToggle } from '@/components/site/lang-switch'
+import { LangBlock, LangText, LangToggle } from '@/components/site/lang-switch'
 import { RetreatCard } from '@/components/site/retreat-card'
 import type { PartnerDetail } from '@/lib/types'
 import { ogImageUrl } from '@/sanity/lib/image'
@@ -50,11 +50,19 @@ export default async function PartnerPage({ params }: Props) {
   const photos = [cover, ...(partner.images ?? []).filter((img) => img.asset?._ref !== cover?.asset?._ref)]
     .filter((img): img is NonNullable<typeof img> => Boolean(img?.asset))
     .map((img, i) => ({ key: img._key ?? `photo-${i}`, image: img, caption: img.alt }))
-  const hasArabic = Boolean(partner.summaryAr || partner.descriptionAr?.length)
+  const hasArabic = Boolean(partner.nameAr || partner.summaryAr || partner.descriptionAr?.length || partner.amenitiesAr?.length)
   const hasDetails = Boolean(partner.description?.length || partner.amenities?.length)
+  const renderItems = (items: string[]) => (
+    <ul className="mt-5">
+      {items.map((a) => (
+        <li key={a} className="flex gap-3 border-t border-ink/10 py-3 text-stone first:border-t-0">
+          <span aria-hidden="true" className="text-clay">✓</span>{a}
+        </li>
+      ))}
+    </ul>
+  )
 
   return (
-    <LangProvider>
     <article className="mx-auto max-w-7xl px-5 pb-24 pt-6 lg:px-10 lg:pt-10">
       <Link href="/partners" className="text-sm text-stone hover:text-ink">← All partners</Link>
       {hasArabic && <div className="mt-4"><LangToggle /></div>}
@@ -62,11 +70,8 @@ export default async function PartnerPage({ params }: Props) {
       <header className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl">
           <p className="text-clay">{isWorkshop ? 'Workshop' : isActivity ? 'Activity' : isCamp ? 'Camp' : 'Transport'}{hosted && partner.host ? ` with ${partner.host}` : ''}{location ? ` in ${location}` : ''}{partner.vehicleType ? `, ${partner.vehicleType}` : ''}</p>
-          <h1 className="mt-3 font-display text-5xl leading-none tracking-[-0.02em] sm:text-7xl">{partner.name}</h1>
-          <Lang
-            en={partner.summary && <p className="mt-6 text-xl leading-relaxed text-stone">{partner.summary}</p>}
-            ar={partner.summaryAr && <p className="mt-6 text-xl leading-relaxed text-stone">{partner.summaryAr}</p>}
-          />
+          <LangText as="h1" className="mt-3 font-display text-5xl leading-none tracking-[-0.02em] sm:text-7xl" en={partner.name} ar={partner.nameAr} />
+          <LangText as="p" className="mt-6 text-xl leading-relaxed text-stone" en={partner.summary} ar={partner.summaryAr} />
         </div>
         {(links.length > 0 || maps) && (
           <div className="flex shrink-0 flex-wrap gap-2">
@@ -86,20 +91,17 @@ export default async function PartnerPage({ params }: Props) {
 
       {hasDetails && (
         <div className="mt-14 grid gap-12 lg:mt-20 lg:grid-cols-[1fr_340px] lg:gap-20">
-          <Lang
+          <LangBlock
             en={<RichText value={partner.description} className="max-w-2xl text-lg leading-relaxed" />}
             ar={partner.descriptionAr?.length ? <RichText value={partner.descriptionAr} className="max-w-2xl text-lg leading-relaxed" /> : undefined}
           />
-          {!!partner.amenities?.length && (
+          {!!(partner.amenities?.length || partner.amenitiesAr?.length) && (
             <aside className="lg:border-l lg:border-ink/10 lg:pl-10">
               <h2 className="font-display text-2xl">{isWorkshop ? 'What you will do' : isActivity ? 'What is included' : isCamp ? 'What guests get' : 'On board'}</h2>
-              <ul className="mt-5">
-                {partner.amenities.map((a) => (
-                  <li key={a} className="flex gap-3 border-t border-ink/10 py-3 text-stone first:border-t-0">
-                    <span aria-hidden="true" className="text-clay">✓</span>{a}
-                  </li>
-                ))}
-              </ul>
+              <LangBlock
+                en={partner.amenities?.length ? renderItems(partner.amenities) : undefined}
+                ar={partner.amenitiesAr?.length ? renderItems(partner.amenitiesAr) : undefined}
+              />
             </aside>
           )}
         </div>
@@ -130,6 +132,5 @@ export default async function PartnerPage({ params }: Props) {
       <p className="mt-14 text-sm text-stone">{partner.name} is an independent partner and is not owned by Solo Retreats.</p>
 
     </article>
-    </LangProvider>
   )
 }

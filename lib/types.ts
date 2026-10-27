@@ -19,11 +19,14 @@ export type Departure = { _key: string; departureDate: string; returnDate: strin
 export type RetreatCard = {
   _id: string
   title: string
+  titleAr?: string | null
   slug: string
   destination: string
+  destinationAr?: string | null
   status: RetreatStatus
   spotsLeft?: number | null
   shortDescription?: string | null
+  shortDescriptionAr?: string | null
   showPrice?: boolean | null
   price?: string | null
   departures?: Departure[] | null
@@ -38,11 +41,16 @@ export type PartnerSummary = {
   _id: string
   _type: 'camp' | 'busCompany' | 'workshop' | 'activity'
   name: string
+  nameAr?: string | null
   slug: string
   location?: string | null
+  locationAr?: string | null
   vehicleType?: string | null
+  vehicleTypeAr?: string | null
   host?: string | null
+  hostAr?: string | null
   summary?: string | null
+  summaryAr?: string | null
   coverImage?: SanityImage | null
 }
 
@@ -50,15 +58,20 @@ export type Testimonial = { _id: string; name: string; quote: string; rating?: n
 
 export type ReviewableRetreat = { _id: string; title: string; slug: string; status: RetreatStatus; date?: string | null }
 
+export type TripItem = { _id: string; name: string; nameAr?: string | null }
+
 export type RetreatDetail = RetreatCard & {
   description?: PortableTextBlock[] | null
-  shortDescriptionAr?: string | null
   descriptionAr?: PortableTextBlock[] | null
-  itinerary?: { _key: string; title: string; text?: string | null }[] | null
+  itinerary?: { _key: string; title: string; titleAr?: string | null; text?: string | null; textAr?: string | null }[] | null
   included?: string[] | null
   notIncluded?: string[] | null
   whatToBring?: string[] | null
+  includedItems?: TripItem[] | null
+  notIncludedItems?: TripItem[] | null
+  whatToBringItems?: TripItem[] | null
   meetingPoint?: string | null
+  meetingPointAr?: string | null
   meetingPointMap?: string | null
   meetingTime?: string | null
   maxTravelers?: number | null
@@ -72,9 +85,9 @@ export type RetreatDetail = RetreatCard & {
 
 export type PartnerDetail = PartnerSummary & {
   description?: PortableTextBlock[] | null
-  summaryAr?: string | null
   descriptionAr?: PortableTextBlock[] | null
   amenities?: string[] | null
+  amenitiesAr?: string[] | null
   instagram?: string | null
   facebook?: string | null
   googleMaps?: string | null
