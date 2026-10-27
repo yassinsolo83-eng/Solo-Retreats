@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import { BookingForm } from '@/components/site/booking-form'
 import { JsonLd } from '@/components/site/json-ld'
 import { StatusPill } from '@/components/site/retreat-card'
+import { Lang, LangProvider, LangToggle } from '@/components/site/lang-switch'
 import { RichText } from '@/components/site/rich-text'
 import { PhotoMosaic } from '@/components/site/photos'
 import { SanityImage } from '@/components/site/sanity-image'
@@ -81,6 +82,8 @@ export default async function RetreatPage({ params }: Props) {
         organizer: { '@type': 'Organization', name: BRAND, url: siteUrl },
       }))
 
+  const hasArabic = Boolean(retreat.shortDescriptionAr || retreat.descriptionAr?.length)
+
   const facts: [string, React.ReactNode][] = [
     ['Where', retreat.destination],
     first ? ['Length', `${nights(first)} nights`] : null,
@@ -108,6 +111,7 @@ export default async function RetreatPage({ params }: Props) {
   ].filter(Boolean) as [string, React.ReactNode][]
 
   return (
+    <LangProvider>
     <article>
       {events.length > 0 && <JsonLd data={events} />}
       <header className="mx-auto max-w-7xl px-5 pt-6 lg:px-10 lg:pt-10">
@@ -117,7 +121,11 @@ export default async function RetreatPage({ params }: Props) {
           {first && <span className="text-sm text-clay">{shown.length > 1 ? `${shown.length} dates available` : formatDeparture(first)}</span>}
         </div>
         <h1 className="mt-4 max-w-5xl font-display text-5xl font-light leading-[0.98] tracking-[-0.03em] sm:text-7xl lg:text-8xl">{retreat.title}</h1>
-        {retreat.shortDescription && <p className="mt-6 max-w-2xl text-xl leading-relaxed text-stone">{retreat.shortDescription}</p>}
+        {hasArabic && <LangToggle className="mt-6" />}
+        <Lang
+          en={retreat.shortDescription && <p className="mt-6 max-w-2xl text-xl leading-relaxed text-stone">{retreat.shortDescription}</p>}
+          ar={retreat.shortDescriptionAr && <p className="mt-6 max-w-2xl text-xl leading-relaxed text-stone">{retreat.shortDescriptionAr}</p>}
+        />
       </header>
 
       <div className="mx-auto mt-10 max-w-7xl px-5 lg:px-10">
@@ -135,7 +143,10 @@ export default async function RetreatPage({ params }: Props) {
             ))}
           </dl>
 
-          <RichText value={retreat.description} className="mt-12 max-w-2xl" />
+          <Lang
+            en={<RichText value={retreat.description} className="mt-12 max-w-2xl" />}
+            ar={retreat.descriptionAr?.length ? <RichText value={retreat.descriptionAr} className="mt-12 max-w-2xl" /> : undefined}
+          />
 
           {!!retreat.itinerary?.length && (
             <section className="mt-16">
@@ -246,6 +257,7 @@ export default async function RetreatPage({ params }: Props) {
         </aside>
       </div>
     </article>
+    </LangProvider>
   )
 }
 

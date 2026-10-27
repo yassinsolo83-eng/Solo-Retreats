@@ -52,6 +52,8 @@ export type ReviewableRetreat = { _id: string; title: string; slug: string; stat
 
 export type RetreatDetail = RetreatCard & {
   description?: PortableTextBlock[] | null
+  shortDescriptionAr?: string | null
+  descriptionAr?: PortableTextBlock[] | null
   itinerary?: { _key: string; title: string; text?: string | null }[] | null
   included?: string[] | null
   notIncluded?: string[] | null
@@ -70,6 +72,8 @@ export type RetreatDetail = RetreatCard & {
 
 export type PartnerDetail = PartnerSummary & {
   description?: PortableTextBlock[] | null
+  summaryAr?: string | null
+  descriptionAr?: PortableTextBlock[] | null
   amenities?: string[] | null
   instagram?: string | null
   facebook?: string | null
