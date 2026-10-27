@@ -36,11 +36,12 @@ export type RetreatCard = {
 
 export type PartnerSummary = {
   _id: string
-  _type: 'camp' | 'busCompany'
+  _type: 'camp' | 'busCompany' | 'workshop' | 'activity'
   name: string
   slug: string
   location?: string | null
   vehicleType?: string | null
+  host?: string | null
   summary?: string | null
   coverImage?: SanityImage | null
 }
@@ -62,6 +63,8 @@ export type RetreatDetail = RetreatCard & {
   images?: SanityImage[] | null
   camp?: PartnerSummary | null
   bus?: PartnerSummary | null
+  workshop?: PartnerSummary | null
+  activities?: PartnerSummary[] | null
   testimonials?: Testimonial[] | null
 }
 
@@ -74,6 +77,7 @@ export type PartnerDetail = PartnerSummary & {
   coverPhoto?: SanityImage | null
   images?: SanityImage[] | null
   retreats?: RetreatCard[] | null
+  testimonials?: Testimonial[] | null
 }
 
 export type SiteSettings = {

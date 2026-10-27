@@ -5,6 +5,8 @@ import { isUrl } from '@/lib/site'
 import { notFound } from 'next/navigation'
 import { RichText } from '@/components/site/rich-text'
 import { PhotoMosaic } from '@/components/site/photos'
+import { reviewerName, Stars } from '@/components/site/stars'
+import { RetreatCard } from '@/components/site/retreat-card'
 import type { PartnerDetail } from '@/lib/types'
 import { ogImageUrl } from '@/sanity/lib/image'
 import { sanityFetch } from '@/sanity/lib/client'
@@ -32,6 +34,9 @@ export default async function PartnerPage({ params }: Props) {
   const partner = await sanityFetch<PartnerDetail | null>(partnerBySlugQuery, { slug }, null)
   if (!partner) notFound()
   const isCamp = partner._type === 'camp'
+  const isWorkshop = partner._type === 'workshop'
+  const isActivity = partner._type === 'activity'
+  const hosted = isWorkshop || isActivity
   // A Maps link typed into Location still works as the map button, and never shows as text.
   const location = partner.location && !isUrl(partner.location) ? partner.location : null
   const maps = partner.googleMaps || (isUrl(partner.location) ? partner.location : null)
@@ -52,7 +57,7 @@ export default async function PartnerPage({ params }: Props) {
 
       <header className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl">
-          <p className="text-clay">{isCamp ? 'Camp' : 'Transport'}{location ? ` in ${location}` : ''}{partner.vehicleType ? `, ${partner.vehicleType}` : ''}</p>
+          <p className="text-clay">{isWorkshop ? 'Workshop' : isActivity ? 'Activity' : isCamp ? 'Camp' : 'Transport'}{hosted && partner.host ? ` with ${partner.host}` : ''}{location ? ` in ${location}` : ''}{partner.vehicleType ? `, ${partner.vehicleType}` : ''}</p>
           <h1 className="mt-3 font-display text-5xl leading-none tracking-[-0.02em] sm:text-7xl">{partner.name}</h1>
           {partner.summary && <p className="mt-6 text-xl leading-relaxed text-stone">{partner.summary}</p>}
         </div>
@@ -77,7 +82,7 @@ export default async function PartnerPage({ params }: Props) {
           <RichText value={partner.description} className="max-w-2xl text-lg leading-relaxed" />
           {!!partner.amenities?.length && (
             <aside className="lg:border-l lg:border-ink/10 lg:pl-10">
-              <h2 className="font-display text-2xl">{isCamp ? 'What guests get' : 'On board'}</h2>
+              <h2 className="font-display text-2xl">{isWorkshop ? 'What you will do' : isActivity ? 'What is included' : isCamp ? 'What guests get' : 'On board'}</h2>
               <ul className="mt-5">
                 {partner.amenities.map((a) => (
                   <li key={a} className="flex gap-3 border-t border-ink/10 py-3 text-stone first:border-t-0">
@@ -88,6 +93,28 @@ export default async function PartnerPage({ params }: Props) {
             </aside>
           )}
         </div>
+      )}
+
+      {!!partner.retreats?.length && (
+        <section className="mt-16 lg:mt-24">
+          <h2 className="mb-6 font-display text-4xl tracking-tight">Retreats with {partner.name}</h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{partner.retreats.map((r) => <RetreatCard key={r._id} retreat={r} />)}</div>
+        </section>
+      )}
+
+      {!!partner.testimonials?.length && (
+        <section className="mt-16 lg:mt-24">
+          <h2 className="mb-6 font-display text-4xl tracking-tight">What travelers say</h2>
+          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+            {partner.testimonials.map((t) => (
+              <figure key={t._id}>
+                {t.rating ? <Stars rating={t.rating} /> : null}
+                <blockquote className="mt-3 font-display text-2xl leading-snug">“{t.quote}”</blockquote>
+                <figcaption className="mt-4 text-sm text-stone">{reviewerName(t.name)}{t.retreat ? `, ${t.retreat}` : ''}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
       )}
 
       <p className="mt-14 text-sm text-stone">{partner.name} is an independent partner and is not owned by Solo Retreats.</p>

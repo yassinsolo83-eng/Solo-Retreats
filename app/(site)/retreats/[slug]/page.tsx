@@ -87,6 +87,10 @@ export default async function RetreatPage({ params }: Props) {
     retreat.maxTravelers ? ['Group size', `Up to ${retreat.maxTravelers} travelers`] : null,
     retreat.camp ? ['Stay', <PartnerLink key="camp" partner={retreat.camp} />] : null,
     retreat.bus ? ['Transport', <PartnerLink key="bus" partner={retreat.bus} />] : null,
+    retreat.workshop ? ['Workshop', <PartnerLink key="workshop" partner={retreat.workshop} />] : null,
+    retreat.activities?.length
+      ? ['Activities', <span key="activities" className="flex flex-col">{retreat.activities.map((a) => <PartnerLink key={a.slug} partner={a} />)}</span>]
+      : null,
     retreat.meetingPoint
       ? [
           'Meeting point',

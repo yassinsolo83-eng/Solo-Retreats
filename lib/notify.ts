@@ -97,3 +97,38 @@ export async function sendReviewEmail(r: { name: string; rating: number; quote: 
   })
   if (!res.ok) throw new Error(`Resend responded ${res.status}: ${await res.text()}`)
 }
+
+/** Emails you when a business or host asks to partner with Solo Retreats. */
+export async function sendPartnerRequestEmail(p: { kind: string; name: string; business: string; phone: string; email: string; link: string; message: string }) {
+  const apiKey = process.env.RESEND_API_KEY
+  const to = process.env.BOOKING_NOTIFY_EMAIL
+  if (!apiKey || !to) return
+  const from = process.env.BOOKING_FROM_EMAIL || 'Solo Retreats <onboarding@resend.dev>'
+  const rows: [string, string][] = [
+    ['Type', p.kind],
+    ['Contact', p.name],
+    ['Phone', p.phone],
+    ['Email', p.email || '—'],
+    ['Link', p.link || '—'],
+    ['Offer', p.message],
+  ]
+  const html = `
+  <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#24332d">
+    <p style="margin:0 0 4px;color:#8f5526;font-size:13px">Partner request</p>
+    <h1 style="margin:0 0 20px;font-size:24px;font-weight:600">${escape(p.business)}</h1>
+    <table style="width:100%;border-collapse:collapse;font-size:15px">
+      ${rows.map(([k, v]) => `<tr><td style="padding:8px 0;color:#5f6b64;width:90px;vertical-align:top">${k}</td><td style="padding:8px 0">${escape(v).replace(/\n/g, '<br>')}</td></tr>`).join('')}
+    </table>
+    <p style="margin:24px 0 8px">
+      <a href="https://wa.me/${toWhatsAppNumber(p.phone)}" style="display:inline-block;background:#26473d;color:#f6f3ed;text-decoration:none;padding:12px 20px;border-radius:999px;font-weight:600">Message on WhatsApp</a>
+      &nbsp;
+      <a href="${siteUrl}/studio" style="color:#26473d">Open the studio</a>
+    </p>
+  </div>`
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from, to: to.split(',').map((e) => e.trim()), subject: `Partner request: ${p.business}`, html }),
+  })
+  if (!res.ok) throw new Error(`Resend responded ${res.status}: ${await res.text()}`)
+}
