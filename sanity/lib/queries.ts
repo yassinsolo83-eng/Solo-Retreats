@@ -64,27 +64,34 @@ export const retreatBySlugQuery = defineQuery(`*[_type == "retreat" && slug.curr
   images[]${photo},
   "camp": camp->{ name, "slug": slug.current, location, summary, coverImage${image} },
   "bus": busCompany->{ name, "slug": slug.current, vehicleType, summary, coverImage${image} },
+  "workshop": workshop->{ name, "slug": slug.current, host, summary, coverImage${image} },
+  "activities": activities[]->{ name, "slug": slug.current, host, summary, coverImage${image} },
   "testimonials": *[_type == "testimonial" && retreat._ref == ^._id && approved != false] | order(_createdAt desc){ _id, name, quote, rating, _createdAt, photo${image} }
 }`)
 
 const partnerFields = `
-  _id, _type, name, "slug": slug.current, location, vehicleType, summary,
+  _id, _type, name, "slug": slug.current, location, vehicleType, host, summary,
   coverImage${image}
 `
 
 export const partnersQuery = defineQuery(`{
   "camps": *[_type == "camp" && defined(slug.current)] | order(name asc){ ${partnerFields} },
-  "buses": *[_type == "busCompany" && defined(slug.current)] | order(name asc){ ${partnerFields} }
+  "buses": *[_type == "busCompany" && defined(slug.current)] | order(name asc){ ${partnerFields} },
+  "workshops": *[_type == "workshop" && defined(slug.current)] | order(name asc){ ${partnerFields} },
+  "activities": *[_type == "activity" && defined(slug.current)] | order(name asc){ ${partnerFields} }
 }`)
 
-export const partnerSlugsQuery = defineQuery(`*[_type in ["camp", "busCompany"] && defined(slug.current)].slug.current`)
+export const partnerSlugsQuery = defineQuery(`*[_type in ["camp", "busCompany", "workshop", "activity"] && defined(slug.current)].slug.current`)
 
-export const partnerBySlugQuery = defineQuery(`*[_type in ["camp", "busCompany"] && slug.current == $slug][0]{
+export const partnerBySlugQuery = defineQuery(`*[_type in ["camp", "busCompany", "workshop", "activity"] && slug.current == $slug][0]{
   ${partnerFields},
   description, amenities, instagram, facebook, googleMaps,
   "coverPhoto": coverImage${photo},
   images[]${photo},
-  "retreats": *[_type == "retreat" && references(^._id) && !${ended} && defined(slug.current)]{ ${retreatCard} }
+  "retreats": *[_type == "retreat" && references(^._id) && !${ended} && defined(slug.current)]{ ${retreatCard} },
+  "testimonials": *[_type == "testimonial" && approved != false && defined(retreat) && (^._id in [retreat->camp._ref, retreat->busCompany._ref, retreat->workshop._ref] || ^._id in retreat->activities[]._ref)] | order(_createdAt desc)[0...6]{
+    _id, name, quote, rating, _createdAt, "retreat": retreat->title
+  }
 }`)
 
 export const galleryQuery = defineQuery(`*[_type == "galleryImage" && defined(image.asset)]

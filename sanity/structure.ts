@@ -1,5 +1,31 @@
-import type { StructureResolver } from 'sanity/structure'
+import type { StructureBuilder, StructureResolver } from 'sanity/structure'
 import { apiVersion } from './env'
+
+const requestList = (S: StructureBuilder, title: string, filter: string) =>
+  S.listItem()
+    .title(title)
+    .schemaType('bookingRequest')
+    .child(
+      S.documentList()
+        .title(title)
+        .apiVersion(apiVersion)
+        .schemaType('bookingRequest')
+        .filter(filter)
+        .defaultOrdering([{ field: '_createdAt', direction: 'desc' }]),
+    )
+
+const partnerList = (S: StructureBuilder, title: string, filter: string) =>
+  S.listItem()
+    .title(title)
+    .schemaType('partnerRequest')
+    .child(
+      S.documentList()
+        .title(title)
+        .apiVersion(apiVersion)
+        .schemaType('partnerRequest')
+        .filter(filter)
+        .defaultOrdering([{ field: '_createdAt', direction: 'desc' }]),
+    )
 
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -22,34 +48,45 @@ export const structure: StructureResolver = (S) =>
           S.list()
             .title('Booking requests')
             .items([
+              requestList(S, 'New', '_type == "bookingRequest" && status == "new"'),
+              requestList(S, 'Confirmed, not fully paid', '_type == "bookingRequest" && kind != "waitlist" && status == "confirmed" && payment != "paid"'),
+              requestList(S, 'Confirmed and paid', '_type == "bookingRequest" && kind != "waitlist" && status == "confirmed" && payment == "paid"'),
+              requestList(S, 'Waitlist', '_type == "bookingRequest" && kind == "waitlist" && status != "cancelled"'),
               S.listItem()
-                .title('New')
-                .schemaType('bookingRequest')
+                .title('By retreat')
                 .child(
-                  S.documentList()
-                    .title('New requests')
-                    .apiVersion(apiVersion)
-                    .schemaType('bookingRequest')
-                    .filter('_type == "bookingRequest" && status == "new"')
-                    .defaultOrdering([{ field: '_createdAt', direction: 'desc' }]),
+                  S.documentTypeList('retreat')
+                    .title('Choose a retreat')
+                    .child((retreatId: string) =>
+                      S.documentList()
+                        .title('Requests for this retreat')
+                        .apiVersion(apiVersion)
+                        .schemaType('bookingRequest')
+                        .filter('_type == "bookingRequest" && retreat._ref == $retreatId')
+                        .params({ retreatId: retreatId.replace(/^drafts\./, '') })
+                        .defaultOrdering([{ field: '_createdAt', direction: 'desc' }]),
+                    ),
                 ),
-              S.listItem()
-                .title('All requests')
-                .schemaType('bookingRequest')
-                .child(
-                  S.documentList()
-                    .title('All requests')
-                    .apiVersion(apiVersion)
-                    .schemaType('bookingRequest')
-                    .filter('_type == "bookingRequest"')
-                    .defaultOrdering([{ field: '_createdAt', direction: 'desc' }]),
-                ),
+              requestList(S, 'All requests', '_type == "bookingRequest"'),
+            ]),
+        ),
+      S.listItem()
+        .title('Partner requests')
+        .schemaType('partnerRequest')
+        .child(
+          S.list()
+            .title('Partner requests')
+            .items([
+              partnerList(S, 'New', '_type == "partnerRequest" && status == "new"'),
+              partnerList(S, 'All requests', '_type == "partnerRequest"'),
             ]),
         ),
       S.documentTypeListItem('customer').title('Customers'),
       S.divider(),
       S.documentTypeListItem('camp').title('Camps'),
       S.documentTypeListItem('busCompany').title('Bus companies'),
+      S.documentTypeListItem('workshop').title('Workshop hosts'),
+      S.documentTypeListItem('activity').title('Activity partners'),
       S.divider(),
       S.documentTypeListItem('galleryImage').title('Gallery'),
       S.listItem()

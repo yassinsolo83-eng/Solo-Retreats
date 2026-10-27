@@ -124,6 +124,8 @@ export const retreat = defineType({
     }),
     defineField({ name: 'camp', title: 'Camp', type: 'reference', group: 'trip', to: [{ type: 'camp' }] }),
     defineField({ name: 'busCompany', title: 'Bus company', type: 'reference', group: 'trip', to: [{ type: 'busCompany' }] }),
+    defineField({ name: 'workshop', title: 'Workshop host', type: 'reference', group: 'trip', to: [{ type: 'workshop' }] }),
+    defineField({ name: 'activities', title: 'Activity partners', type: 'array', group: 'trip', of: [{ type: 'reference', to: [{ type: 'activity' }] }] }),
     defineField({ name: 'meetingPoint', title: 'Meeting point', type: 'string', group: 'trip', placeholder: 'Nasr City, in front of City Stars Gate 5' }),
     defineField({
       name: 'meetingPointMap',

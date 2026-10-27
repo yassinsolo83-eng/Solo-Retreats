@@ -8,6 +8,12 @@ export const bookingStatuses = [
   { title: 'Cancelled', value: 'cancelled' },
 ]
 
+export const paymentStatuses = [
+  { title: 'Unpaid', value: 'unpaid' },
+  { title: 'Deposit paid', value: 'deposit' },
+  { title: 'Paid in full', value: 'paid' },
+]
+
 export const bookingRequest = defineType({
   name: 'bookingRequest',
   title: 'Booking request',
@@ -27,15 +33,24 @@ export const bookingRequest = defineType({
     defineField({ name: 'dates', title: 'Dates', type: 'string', readOnly: true }),
     defineField({ name: 'message', title: 'Message', type: 'text', rows: 3, readOnly: true }),
     defineField({ name: 'source', title: 'Came from', type: 'string', readOnly: true, description: 'Where they first found the site (Instagram, Google, a shared link...).' }),
+    defineField({
+      name: 'payment',
+      title: 'Payment',
+      type: 'string',
+      options: { list: paymentStatuses, layout: 'radio', direction: 'horizontal' },
+      initialValue: 'unpaid',
+      description: 'Your own tracking. Does not change seats or the emails sent to the traveler.',
+    }),
+    defineField({ name: 'amountPaid', title: 'Amount paid (EGP)', type: 'number', validation: (r) => r.min(0) }),
     defineField({ name: 'notifiedStatus', title: 'Last emailed status', type: 'string', readOnly: true, description: 'Set by the Email customer button, so the same email is not sent twice.' }),
     defineField({ name: 'notes', title: 'Your notes', type: 'text', rows: 3, description: 'Private. Only you see this.' }),
   ],
   orderings: [{ title: 'Newest first', name: 'createdDesc', by: [{ field: '_createdAt', direction: 'desc' }] }],
   preview: {
-    select: { name: 'name', retreat: 'retreatTitle', travelers: 'travelers', status: 'status', kind: 'kind' },
-    prepare: ({ name, retreat, travelers, status, kind }) => ({
+    select: { name: 'name', retreat: 'retreatTitle', travelers: 'travelers', status: 'status', kind: 'kind', payment: 'payment' },
+    prepare: ({ name, retreat, travelers, status, kind, payment }) => ({
       title: `${name || 'Unknown'}${kind === 'waitlist' ? ' (waitlist)' : ''}`,
-      subtitle: [retreat, travelers ? `${travelers} traveler${travelers > 1 ? 's' : ''}` : null, bookingStatuses.find((s) => s.value === status)?.title].filter(Boolean).join(' · '),
+      subtitle: [retreat, travelers ? `${travelers} traveler${travelers > 1 ? 's' : ''}` : null, bookingStatuses.find((s) => s.value === status)?.title, kind !== 'waitlist' && status === 'confirmed' ? paymentStatuses.find((p) => p.value === payment)?.title ?? 'Unpaid' : null].filter(Boolean).join(' · '),
     }),
   },
 })

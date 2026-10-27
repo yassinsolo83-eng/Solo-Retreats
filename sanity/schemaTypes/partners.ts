@@ -1,5 +1,6 @@
 import { HomeIcon } from '@sanity/icons/Home'
 import { TransferIcon } from '@sanity/icons/Transfer'
+import { UserIcon } from '@sanity/icons/User'
 import { defineField, defineType } from 'sanity'
 import { imageGallery, imageWithAlt, linkFields, simpleBlocks } from './fields'
 
@@ -61,4 +62,42 @@ export const busCompany = defineType({
     ...linkFields,
   ],
   preview: { select: { title: 'name', subtitle: 'vehicleType', media: 'coverImage' } },
+})
+
+export const workshop = defineType({
+  name: 'workshop',
+  title: 'Workshop host',
+  type: 'document',
+  icon: UserIcon,
+  fields: [
+    defineField({ name: 'name', title: 'Workshop name', type: 'string', placeholder: 'Shadow Acting Workshop', validation: (r) => r.required() }),
+    slugField,
+    defineField({ name: 'host', title: 'Hosted by', type: 'string', placeholder: 'Alaa Mohamed Saad Eldin', description: 'The facilitator or trainer.' }),
+    defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
+    simpleBlocks('description', 'Full description'),
+    defineField({ name: 'amenities', title: 'What you will do', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
+    imageWithAlt('coverImage', 'Cover photo'),
+    imageGallery(),
+    ...linkFields,
+  ],
+  preview: { select: { title: 'name', subtitle: 'host', media: 'coverImage' } },
+})
+
+export const activity = defineType({
+  name: 'activity',
+  title: 'Activity partner',
+  type: 'document',
+  icon: UserIcon,
+  fields: [
+    defineField({ name: 'name', title: 'Name', type: 'string', placeholder: 'Snorkeling trip, Desert safari', validation: (r) => r.required() }),
+    slugField,
+    defineField({ name: 'host', title: 'Run by', type: 'string', description: 'The company or guide who runs it.' }),
+    defineField({ name: 'summary', title: 'Short description', type: 'text', rows: 2, validation: (r) => r.max(220) }),
+    simpleBlocks('description', 'Full description'),
+    defineField({ name: 'amenities', title: 'What is included', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
+    imageWithAlt('coverImage', 'Cover photo'),
+    imageGallery(),
+    ...linkFields,
+  ],
+  preview: { select: { title: 'name', subtitle: 'host', media: 'coverImage' } },
 })
